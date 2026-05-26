@@ -3,9 +3,8 @@ name: Update Pharmacy Cache
 on:
   workflow_dispatch:
   schedule:
-    # Turkey time 12:05. GitHub may run scheduled jobs a few minutes late.
-    - cron: "5 9 * * *"
-    - cron: "20 9 * * *"
+    # Turkey time 11:50. GitHub may run scheduled jobs a few minutes late.
+    - cron: "50 8 * * *"
 
 permissions:
   contents: write
