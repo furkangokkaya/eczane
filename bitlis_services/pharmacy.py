@@ -22,6 +22,9 @@ SOURCE_URLS = (
     "https://www.eczaneler.gen.tr/",
 )
 CACHE_PATH = Path(__file__).resolve().parents[1] / "bitlis_pharmacy_cache.json"
+DEFAULT_GITHUB_CACHE_URL = (
+    "https://raw.githubusercontent.com/furkangokkaya/eczane/main/bitlis_pharmacy_cache.json"
+)
 DISTRICT_SOURCE_URLS = {
     "merkez": "https://www.eczaneler.gen.tr/nobetci-bitlis-merkez",
     "mutki": "https://www.eczaneler.gen.tr/nobetci-bitlis-mutki",
@@ -79,7 +82,8 @@ def _browser_headers(referer: str = "https://www.eczaneler.gen.tr/") -> Dict[str
         ),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
-        "Accept-Encoding": "gzip, deflate, br",
+        # br (Brotli) istemeyin — requests brotli paketi olmadan bozuk gövde döner.
+        "Accept-Encoding": "gzip, deflate",
         "Cache-Control": "no-cache",
         "Pragma": "no-cache",
         "Referer": referer,
@@ -185,6 +189,8 @@ def _fetch_remote_pharmacies(
     remote_url: str,
     remote_token: str,
     now: datetime,
+    *,
+    retries: int = 3,
 ) -> Dict[str, Any]:
     url = (remote_url or "").strip()
     if not url:
@@ -193,18 +199,31 @@ def _fetch_remote_pharmacies(
     headers = {
         "Accept": "application/json",
         "User-Agent": "BitlisBilgiBot/1.0",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
     }
     if remote_token:
         headers["Authorization"] = f"Bearer {remote_token}"
         headers["X-Pharmacy-Token"] = remote_token
 
-    try:
-        r = requests.get(url, headers=headers, timeout=30)
-        r.raise_for_status()
-        data = r.json()
-    except Exception as e:
+    data: Optional[Dict[str, Any]] = None
+    last_error: Optional[Exception] = None
+    sep = "&" if "?" in url else "?"
+    for attempt in range(max(1, retries)):
+        bust_url = f"{url}{sep}t={int(now.timestamp())}&r={attempt}"
+        try:
+            r = requests.get(bust_url, headers=headers, timeout=30)
+            r.raise_for_status()
+            payload = r.json()
+            if isinstance(payload, dict):
+                data = payload
+                break
+        except Exception as e:
+            last_error = e
+
+    if data is None:
         result = _result_from_rows(now, [])
-        result["error"] = f"Uzak eczane servisi alınamadı: {e}"
+        result["error"] = f"Uzak eczane servisi alınamadı: {last_error}"
         result["source"] = "remote_bridge"
         return result
 
@@ -215,11 +234,8 @@ def _fetch_remote_pharmacies(
         return result
 
     expected_date = now.strftime("%Y-%m-%d")
-    if data.get("date") != expected_date:
-        result = _result_from_rows(now, [])
-        result["error"] = f"Uzak eczane tarihi güncel değil: {data.get('date') or '-'}"
-        result["source"] = "remote_bridge"
-        return result
+    remote_date = str(data.get("date") or "").strip()
+    is_stale = bool(remote_date and remote_date != expected_date)
 
     if not data.get("ok") or int(data.get("total") or 0) <= 0:
         result = _result_from_rows(now, [])
@@ -228,8 +244,9 @@ def _fetch_remote_pharmacies(
         return result
 
     data["source"] = data.get("source") or "remote_bridge"
-    data["source_mode"] = data.get("source_mode") or "remote_bridge"
+    data["source_mode"] = data.get("source_mode") or ("remote_bridge_stale" if is_stale else "remote_bridge")
     data["remote_url"] = url
+    data["_stale"] = is_stale
     return data
 
 
@@ -546,27 +563,71 @@ def fetch_duty_pharmacies(
     for_daily_publish: bool = True,
     remote_url: str = "",
     remote_token: str = "",
-    use_remote: bool = True,
+    allow_stale_fallback: bool = False,
+    github_only: bool = True,
 ) -> Dict[str, Any]:
-    """Güncel nöbetçi eczaneler — ilçe bazlı (eczaneler.gen.tr canlı tablo)."""
-    now = datetime.now()
-    result: Dict[str, Any] = _result_from_rows(now, [])
+    """
+    Nöbetçi eczaneler.
 
-    if use_remote and remote_url:
-        remote = _fetch_remote_pharmacies(remote_url, remote_token, now)
-        if remote.get("ok"):
-            _save_today_cache(remote)
-            logger.info("Nöbetçi eczane uzak servisten alındı: %s", remote_url)
+    github_only=True (varsayılan): yalnızca GitHub raw JSON cache.
+    github_only=False: eczaneler.gen.tr canlı scrape (GitHub Actions güncellemesi için).
+    """
+    now = datetime.now()
+    today = now.strftime("%Y-%m-%d")
+
+    if github_only:
+        url = (remote_url or DEFAULT_GITHUB_CACHE_URL).strip()
+        if not url:
+            result = _result_from_rows(now, [])
+            result["error"] = "pharmacy.remote_url yapılandırılmadı"
+            return result
+
+        remote = _fetch_remote_pharmacies(url, remote_token, now)
+        if not remote.get("ok"):
+            logger.error("GitHub eczane cache alınamadı: %s", remote.get("error"))
             return remote
-        logger.warning("Uzak eczane servisi başarısız, yerel kaynak deneniyor: %s", remote.get("error"))
+
+        if remote.get("_stale"):
+            if allow_stale_fallback:
+                logger.warning(
+                    "GitHub eczane cache eski (%s) — allow_stale_fallback ile kullanılıyor.",
+                    remote.get("date") or "-",
+                )
+                return remote
+            result = _result_from_rows(now, [])
+            cache_day = str(remote.get("date") or "").strip()
+            result["error"] = (
+                f"GitHub eczane cache güncel değil (cache: {cache_day}, bugün: {today})"
+            )
+            result["_stale"] = True
+            result["_cache_date"] = cache_day
+            logger.error(result["error"])
+            return result
+
+        _save_today_cache(remote)
+        logger.info("Nöbetçi eczane GitHub cache: %s", url)
+        return remote
+
+    result: Dict[str, Any] = _result_from_rows(now, [])
+    remote_fallback: Optional[Dict[str, Any]] = None
 
     try:
         soup = BeautifulSoup(_fetch_source_html(now), "lxml")
     except Exception as e:
         logger.warning("Nöbetçi eczane ana sayfası alınamadı, ilçe sayfaları deneniyor: %s", e)
         result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
-        if result.get("ok"):
+        if result.get("ok") and str(result.get("date") or "") == today:
             _save_today_cache(result)
+            return result
+        if remote_fallback and allow_stale_fallback:
+            logger.warning("Yerel kaynak da başarısız; uzak stale eczane verisi kullanılacak.")
+            return remote_fallback
+        if remote_fallback:
+            result = _result_from_rows(now, [])
+            result["error"] = (
+                f"Bugünkü eczane verisi yok (uzak cache: {remote_fallback.get('date')})"
+            )
+            result["_stale"] = True
             return result
         cached = _load_today_cache(now)
         if cached:
@@ -586,7 +647,17 @@ def fetch_duty_pharmacies(
     if not result.get("ok"):
         result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
         if not result.get("ok"):
+            if remote_fallback and allow_stale_fallback:
+                logger.warning("Yerel parse başarısız; uzak stale eczane verisi kullanılacak.")
+                return remote_fallback
+            if remote_fallback:
+                result = _result_from_rows(now, [])
+                result["error"] = (
+                    f"Bugünkü eczane verisi yok (uzak cache: {remote_fallback.get('date')})"
+                )
+                result["_stale"] = True
+                return result
             result["error"] = "Eczane satırı parse edilemedi"
-    if result.get("ok"):
+    if result.get("ok") and str(result.get("date") or "") == today:
         _save_today_cache(result)
     return result

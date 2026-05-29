@@ -1,34 +1,40 @@
-"""GitHub Actions için günlük nöbetçi eczane cache üretici.
-
-Bu script paylaşım yapmaz. Sadece eczaneler.gen.tr verisini çeker ve
-`bitlis_pharmacy_cache.json` dosyasını günceller.
-"""
+#!/usr/bin/env python3
+"""GitHub Actions — günlük nöbetçi eczane cache güncelleme."""
 from __future__ import annotations
 
 import json
+import sys
+from datetime import datetime
 from pathlib import Path
 
-from bitlis_services.pharmacy import fetch_duty_pharmacies
-
-
 ROOT = Path(__file__).resolve().parent
-CACHE_PATH = ROOT / "bitlis_pharmacy_cache.json"
+sys.path.insert(0, str(ROOT))
+
+from bitlis_services.pharmacy import fetch_duty_pharmacies  # noqa: E402
+
+OUT = ROOT / "bitlis_pharmacy_cache.json"
 
 
 def main() -> int:
-    data = fetch_duty_pharmacies(use_remote=False)
+    data = fetch_duty_pharmacies(
+        github_only=False,
+        allow_stale_fallback=False,
+        for_daily_publish=True,
+    )
+    today = datetime.now().strftime("%Y-%m-%d")
     if not data.get("ok"):
-        print(f"Eczane verisi alınamadı: {data.get('error')}")
+        print("HATA:", data.get("error") or "eczane verisi alınamadı", file=sys.stderr)
+        return 1
+    if str(data.get("date") or "") != today:
+        print(
+            f"HATA: tarih uyumsuz (beklenen {today}, gelen {data.get('date')})",
+            file=sys.stderr,
+        )
         return 1
 
-    CACHE_PATH.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    print(
-        "Eczane cache güncellendi: "
-        f"{data.get('date')} · {data.get('total', 0)} eczane"
-    )
+    payload = {k: v for k, v in data.items() if not str(k).startswith("_")}
+    OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"OK: {data.get('total', 0)} eczane - {today} -> {OUT.name}")
     return 0
 
 
