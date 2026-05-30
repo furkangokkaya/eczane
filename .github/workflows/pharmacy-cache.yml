@@ -1,24 +1,10 @@
+# UYARI: ubuntu-latest (ABD) eczaneler.gen.tr'de 403 verir.
+# Gunluk guncelleme: bot sunucusu — sync_pharmacy_cache.py (ucretsiz).
+# Bu workflow yalnizca elle (workflow_dispatch) veya test icin.
+
 name: Pharmacy cache daily
 
 on:
-  schedule:
-    # Istanbul — bot 12:00 paylasimindan once (coklu slot, gecikmeye karsi)
-    - cron: "0 7 * * *"
-      timezone: "Europe/Istanbul"
-    - cron: "30 11 * * *"
-      timezone: "Europe/Istanbul"
-    - cron: "45 11 * * *"
-      timezone: "Europe/Istanbul"
-    - cron: "55 11 * * *"
-      timezone: "Europe/Istanbul"
-    - cron: "5 12 * * *"
-      timezone: "Europe/Istanbul"
-    - cron: "20 12 * * *"
-      timezone: "Europe/Istanbul"
-    # Yedek UTC
-    - cron: "35 8 * * *"
-    - cron: "50 8 * * *"
-    - cron: "5 9 * * *"
   workflow_dispatch:
 
 permissions:

@@ -4,11 +4,11 @@ Bot **yalnızca** bu dosyayı okur:
 
 `https://raw.githubusercontent.com/furkangokkaya/eczane/main/bitlis_pharmacy_cache.json`
 
-## Otomatik güncelleme (Actions)
+## Otomatik güncelleme (ücretsiz — bot sunucusu)
 
-Workflow: **Pharmacy cache daily** — İstanbul saati 07:00, 11:30–12:20 ve UTC yedek.
+Günlük cache: **`sync_pharmacy_cache.py`** (Türkiye VDS). Ayrıntı: `deploy/SUNUCU_ECZANE.md`
 
-Manuel: GitHub → Actions → Run workflow.
+GitHub Actions zamanlı cron **kapalı** (ABD runner → 403). Yalnızca elle: Actions → Run workflow.
 
 ## Sunucu tetikleme (önerilir)
 
