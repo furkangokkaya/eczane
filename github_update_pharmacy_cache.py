@@ -11,7 +11,11 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from bitlis_services.pharmacy import fetch_duty_pharmacies  # noqa: E402
+from bitlis_services.pharmacy import (  # noqa: E402
+    MIN_PHARMACY_TOTAL,
+    fetch_duty_pharmacies,
+    is_pharmacy_cache_complete,
+)
 
 OUT = ROOT / "bitlis_pharmacy_cache.json"
 TZ_TR = ZoneInfo("Europe/Istanbul")
@@ -36,6 +40,13 @@ def main() -> int:
     if str(data.get("date") or "") != today:
         print(
             f"HATA: tarih uyumsuz (beklenen {today}, gelen {data.get('date')})",
+            file=sys.stderr,
+        )
+        return 1
+    if not is_pharmacy_cache_complete(data):
+        print(
+            f"HATA: eksik eczane listesi (total={data.get('total')}, "
+            f"min={MIN_PHARMACY_TOTAL}) — cache yazilmadi",
             file=sys.stderr,
         )
         return 1

@@ -45,6 +45,30 @@ DISTRICT_ORDER = [
     ("tatvan", "Tatvan"),
 ]
 
+# Bitlis: 7 ilçe; genelde ilçe başına 1 nöbetçi (Tatvan bazen 2 → toplam 7–8).
+MIN_PHARMACY_TOTAL = 7
+_EXPECTED_DISTRICT_KEYS = frozenset(k for k, _ in DISTRICT_ORDER)
+
+
+def is_pharmacy_cache_complete(data: Dict[str, Any]) -> bool:
+    """GitHub/bot için yeterli nöbetçi listesi (kısmi scrape reddedilir)."""
+    if not data or not data.get("ok"):
+        return False
+    if int(data.get("total") or 0) < MIN_PHARMACY_TOTAL:
+        return False
+    keys_with_data = {
+        str(d.get("key") or "")
+        for d in (data.get("districts") or [])
+        if int(d.get("count") or 0) >= 1
+    }
+    return _EXPECTED_DISTRICT_KEYS.issubset(keys_with_data)
+
+
+def _github_actions_runner() -> bool:
+    import os
+
+    return os.environ.get("GITHUB_ACTIONS", "").lower() in ("true", "1")
+
 DISTRICT_FROM_TEXT = {
     "adilcevaz": "adilcevaz",
     "ahlat": "ahlat",
@@ -241,6 +265,18 @@ def _fetch_remote_pharmacies(
         result = _result_from_rows(now, [])
         result["error"] = data.get("error") or "Uzak eczane servisi boş veri döndürdü"
         result["source"] = "remote_bridge"
+        return result
+
+    if not is_stale and not is_pharmacy_cache_complete(data):
+        result = _result_from_rows(now, [])
+        result["error"] = (
+            f"GitHub eczane cache eksik veya hatalı (total={data.get('total')}, "
+            f"min={MIN_PHARMACY_TOTAL})"
+        )
+        result["source"] = "remote_bridge"
+        result["_stale"] = True
+        result["_incomplete"] = True
+        result["_cache_date"] = remote_date
         return result
 
     data["source"] = data.get("source") or "remote_bridge"
@@ -505,6 +541,7 @@ def _parse_today_rows_from_soup(
     now: datetime,
     *,
     for_daily_publish: bool = True,
+    override_district_key: Optional[str] = None,
 ) -> Tuple[List[Dict[str, str]], str]:
     blocks = _collect_table_blocks(soup)
     if not blocks:
@@ -515,13 +552,26 @@ def _parse_today_rows_from_soup(
         idx = len(blocks) - 1
     period_text, duty_table = blocks[idx]
 
+    label_by_key = dict(DISTRICT_ORDER)
     parsed: List[Dict[str, str]] = []
     for row in duty_table.find_all("tr")[1:]:
         cell = row.get_text(" ", strip=True)
         item = _parse_row(cell)
         if item:
+            if override_district_key and override_district_key in _EXPECTED_DISTRICT_KEYS:
+                item["district_key"] = override_district_key
+                item["district_name"] = label_by_key.get(override_district_key, override_district_key)
             parsed.append(item)
     return parsed, period_text
+
+
+def _fetch_district_page_html(url: str, session: requests.Session) -> str:
+    import time
+
+    if _github_actions_runner():
+        time.sleep(2.0)
+        return _fetch_url_html_browser(url, referer=url)
+    return _fetch_url_html(session, url)
 
 
 def _fetch_from_district_pages(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
@@ -531,7 +581,10 @@ def _fetch_from_district_pages(now: datetime, *, for_daily_publish: bool = True)
     periods: List[str] = []
 
     try:
-        session.get("https://www.eczaneler.gen.tr/", timeout=20)
+        if _github_actions_runner():
+            _fetch_url_html_browser("https://www.eczaneler.gen.tr/")
+        else:
+            session.get("https://www.eczaneler.gen.tr/", timeout=20)
     except Exception:
         pass
 
@@ -540,9 +593,12 @@ def _fetch_from_district_pages(now: datetime, *, for_daily_publish: bool = True)
         if not url:
             continue
         try:
-            soup = BeautifulSoup(_fetch_url_html(session, url), "lxml")
+            soup = BeautifulSoup(_fetch_district_page_html(url, session), "lxml")
             rows, period = _parse_today_rows_from_soup(
-                soup, now, for_daily_publish=for_daily_publish,
+                soup,
+                now,
+                for_daily_publish=for_daily_publish,
+                override_district_key=key,
             )
             if period and period not in periods:
                 periods.append(period)
@@ -553,7 +609,14 @@ def _fetch_from_district_pages(now: datetime, *, for_daily_publish: bool = True)
     result = _result_from_rows(now, all_rows, periods[0] if periods else "")
     result["source"] = "eczaneler.gen.tr"
     result["source_mode"] = "district_pages"
-    if not result.get("ok"):
+    if result.get("ok") and not is_pharmacy_cache_complete(result):
+        result["ok"] = False
+        result["error"] = (
+            f"İlçe scrape eksik (total={result.get('total')}, "
+            f"min={MIN_PHARMACY_TOTAL}); "
+            + ("; ".join(errors[-5:]) if errors else "tüm ilçeler alınamadı")
+        )
+    elif not result.get("ok"):
         result["error"] = "; ".join(errors[-3:]) or "İlçe sayfalarından eczane alınamadı"
     return result
 
@@ -642,7 +705,11 @@ def fetch_duty_pharmacies(
     except Exception as e:
         logger.warning("Nöbetçi eczane ana sayfası alınamadı, ilçe sayfaları deneniyor: %s", e)
         result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
-        if result.get("ok") and str(result.get("date") or "") == today:
+        if (
+            result.get("ok")
+            and is_pharmacy_cache_complete(result)
+            and str(result.get("date") or "") == today
+        ):
             _save_today_cache(result)
             return result
         if remote_fallback and allow_stale_fallback:
@@ -670,6 +737,8 @@ def fetch_duty_pharmacies(
 
     result = _result_from_rows(now, parsed, period_text)
     result["source"] = "eczaneler.gen.tr"
+    if result.get("ok") and not is_pharmacy_cache_complete(result):
+        result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
     if not result.get("ok"):
         result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
         if not result.get("ok"):
@@ -684,6 +753,15 @@ def fetch_duty_pharmacies(
                 result["_stale"] = True
                 return result
             result["error"] = "Eczane satırı parse edilemedi"
-    if result.get("ok") and str(result.get("date") or "") == today:
+    if (
+        result.get("ok")
+        and is_pharmacy_cache_complete(result)
+        and str(result.get("date") or "") == today
+    ):
         _save_today_cache(result)
+    elif result.get("ok") and not is_pharmacy_cache_complete(result):
+        result["ok"] = False
+        result["error"] = (
+            f"Eczane listesi eksik (total={result.get('total')}, min={MIN_PHARMACY_TOTAL})"
+        )
     return result

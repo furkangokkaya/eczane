@@ -68,8 +68,19 @@ jobs:
           data = json.load(open("bitlis_pharmacy_cache.json", encoding="utf-8"))
           got = data.get("date")
           print(f"cache date={got} expected={today} total={data.get('total')}")
-          if not data.get("ok") or int(data.get("total") or 0) < 1:
-              raise SystemExit("cache bos veya ok=false")
+          MIN_TOTAL = 7
+          if not data.get("ok") or int(data.get("total") or 0) < MIN_TOTAL:
+              raise SystemExit(
+                  f"cache eksik veya ok=false (total={data.get('total')}, min={MIN_TOTAL})"
+              )
+          keys = {
+              d.get("key")
+              for d in (data.get("districts") or [])
+              if int(d.get("count") or 0) >= 1
+          }
+          need = {"merkez", "mutki", "ahlat", "adilcevaz", "guroymak", "hizan", "tatvan"}
+          if not need.issubset(keys):
+              raise SystemExit(f"eksik ilce: {sorted(need - keys)}")
           if got != today:
               raise SystemExit(f"tarih uyumsuz: {got} != {today}")
           PY
