@@ -9,9 +9,9 @@
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "Eren Eczanesi",
-          "address": "Beş Minare Mahallesi, Ahmet Eren Bulvarı No:150/D Merkez / Bitlis → Bitlis Devlet Hastanesi karşısı",
-          "phone": "0 (434) 246-86-36"
+          "name": "Sezgin Eczanesi",
+          "address": "Bağlar Mahallesi, Muş Bulvarı No:68/A Güroymak /",
+          "phone": "0 (434) 511-25-25"
         }
       ],
       "count": 1
@@ -19,82 +19,42 @@
     {
       "key": "mutki",
       "name": "Mutki",
-      "pharmacies": [
-        {
-          "name": "Deva Eczanesi",
-          "address": "Yeni Mahalle, Kiler Caddesi No:12/E Mutki",
-          "phone": "0 (553) 454-12-21"
-        }
-      ],
-      "count": 1
+      "pharmacies": [],
+      "count": 0
     },
     {
       "key": "ahlat",
       "name": "Ahlat",
-      "pharmacies": [
-        {
-          "name": "Süphan Eczanesi",
-          "address": "Selçuklu Çarşısı, Hastane Caddesi, Şerbetçioğlu İş Hanı Ahlat",
-          "phone": "0 (434) 412-70-09"
-        }
-      ],
-      "count": 1
+      "pharmacies": [],
+      "count": 0
     },
     {
       "key": "adilcevaz",
       "name": "Adilcevaz",
-      "pharmacies": [
-        {
-          "name": "Esen Eczanesi",
-          "address": "Cevizli Mahallesi, 801.Sokak No:4/A Adilcevaz",
-          "phone": "0 (434) 311-20-01"
-        }
-      ],
-      "count": 1
+      "pharmacies": [],
+      "count": 0
     },
     {
       "key": "guroymak",
       "name": "Güroymak",
-      "pharmacies": [
-        {
-          "name": "Sezgin Eczanesi",
-          "address": "Bağlar Mahallesi, Muş Bulvarı No:68/A Güroymak",
-          "phone": "0 (434) 511-25-25"
-        }
-      ],
-      "count": 1
+      "pharmacies": [],
+      "count": 0
     },
     {
       "key": "hizan",
       "name": "Hizan",
-      "pharmacies": [
-        {
-          "name": "Sağlık Eczanesi",
-          "address": "Kültür Mahallesi, Faruk Bekarlar Caddesi No:3/E Hizan",
-          "phone": "0 (536) 392-34-13"
-        }
-      ],
-      "count": 1
+      "pharmacies": [],
+      "count": 0
     },
     {
       "key": "tatvan",
       "name": "Tatvan",
-      "pharmacies": [
-        {
-          "name": "Altındal Eczanesi",
-          "address": "Karşıyaka Mahallesi, Hastane Caddesi, Sağlık İş Merkezi No:20/B Tatvan / Bitlis → Devlet Hastanesi karşısı",
-          "phone": "0 (434) 829-13-81"
-        },
-        {
-          "name": "Ulusoy Eczanesi",
-          "address": "Saray Mahallesi, Cumhuriyet Caddesi No:281/C Tatvan / Bitlis → Kuveyt Türk Bankası karşısı",
-          "phone": "0 (434) 827-57-47"
-        }
-      ],
-      "count": 2
+      "pharmacies": [],
+      "count": 0
     }
   ],
-  "total": 8,
-  "fetched_at": "2026-05-30T12:48:53",
-  "source": "eczaneler.gen.tr"
+  "total": 1,
+  "fetched_at": "2026-05-30T12:58:00",
+  "source": "eczaneler.gen.tr",
+  "source_mode": "district_pages"
 }
