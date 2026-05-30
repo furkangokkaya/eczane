@@ -2,16 +2,28 @@ name: Pharmacy cache daily
 
 on:
   schedule:
-    # TR 11:50 (UTC+3) -> 08:50 UTC — bot 12:00 paylasimindan once
-    - cron: "50 8 * * *"
+    # Istanbul 11:45 — bot eczane paylasimi 12:00 (GitHub timezone)
+    - cron: "45 11 * * *"
+      timezone: "Europe/Istanbul"
+    # Telafi: Istanbul 12:20 (sabah kacan guncelleme)
+    - cron: "20 12 * * *"
+      timezone: "Europe/Istanbul"
+    # Yedek UTC (eski runner / timezone destegi yoksa)
+    - cron: "40 8 * * *"
+    - cron: "5 9 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: pharmacy-cache
+  cancel-in-progress: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -23,12 +35,37 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Scrape duty pharmacies
+        env:
+          TZ: Europe/Istanbul
         run: python github_update_pharmacy_cache.py
 
-      - name: Commit cache if changed
+      - name: Verify cache date
+        env:
+          TZ: Europe/Istanbul
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          today = datetime.now(ZoneInfo("Europe/Istanbul")).strftime("%Y-%m-%d")
+          data = json.load(open("bitlis_pharmacy_cache.json", encoding="utf-8"))
+          got = data.get("date")
+          print(f"cache date={got} expected={today} total={data.get('total')}")
+          if not data.get("ok") or int(data.get("total") or 0) < 1:
+              raise SystemExit("cache bos veya ok=false")
+          if got != today:
+              raise SystemExit(f"tarih uyumsuz: {got} != {today}")
+          PY
+
+      - name: Commit and push cache
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add bitlis_pharmacy_cache.json
-          git diff --staged --quiet || git commit -m "chore: nobetci eczane cache $(date -u +%Y-%m-%d)"
-          git push
+          if git diff --staged --quiet; then
+            echo "Cache dosyasi degismedi (icerik ayni)."
+          else
+            git commit -m "chore: nobetci eczane cache $(TZ=Europe/Istanbul date +%Y-%m-%d)"
+            git push
+          fi
