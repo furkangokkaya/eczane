@@ -2,14 +2,22 @@ name: Pharmacy cache daily
 
 on:
   schedule:
-    # Istanbul 11:45 — bot eczane paylasimi 12:00 (GitHub timezone)
+    # Istanbul — bot 12:00 paylasimindan once (coklu slot, gecikmeye karsi)
+    - cron: "0 7 * * *"
+      timezone: "Europe/Istanbul"
+    - cron: "30 11 * * *"
+      timezone: "Europe/Istanbul"
     - cron: "45 11 * * *"
       timezone: "Europe/Istanbul"
-    # Telafi: Istanbul 12:20 (sabah kacan guncelleme)
+    - cron: "55 11 * * *"
+      timezone: "Europe/Istanbul"
+    - cron: "5 12 * * *"
+      timezone: "Europe/Istanbul"
     - cron: "20 12 * * *"
       timezone: "Europe/Istanbul"
-    # Yedek UTC (eski runner / timezone destegi yoksa)
-    - cron: "40 8 * * *"
+    # Yedek UTC
+    - cron: "35 8 * * *"
+    - cron: "50 8 * * *"
     - cron: "5 9 * * *"
   workflow_dispatch:
 
@@ -17,13 +25,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: pharmacy-cache
-  cancel-in-progress: true
+  group: pharmacy-cache-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -34,10 +42,19 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Scrape duty pharmacies
+      - name: Scrape duty pharmacies (3 deneme)
         env:
           TZ: Europe/Istanbul
-        run: python github_update_pharmacy_cache.py
+        run: |
+          set -e
+          for attempt in 1 2 3; do
+            echo "Scrape denemesi $attempt/3"
+            if python github_update_pharmacy_cache.py; then
+              exit 0
+            fi
+            sleep 25
+          done
+          exit 1
 
       - name: Verify cache date
         env:
@@ -63,7 +80,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add bitlis_pharmacy_cache.json
           if git diff --staged --quiet; then
-            echo "Cache dosyasi degismedi (icerik ayni)."
+            echo "Cache zaten guncel (icerik ayni)."
             exit 0
           fi
           git commit -m "chore: nobetci eczane cache $(TZ=Europe/Istanbul date +%Y-%m-%d)"
