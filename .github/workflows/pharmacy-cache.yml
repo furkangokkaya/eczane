@@ -61,11 +61,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
           git add bitlis_pharmacy_cache.json
           if git diff --staged --quiet; then
             echo "Cache dosyasi degismedi (icerik ayni)."
-          else
-            git commit -m "chore: nobetci eczane cache $(TZ=Europe/Istanbul date +%Y-%m-%d)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: nobetci eczane cache $(TZ=Europe/Istanbul date +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push
