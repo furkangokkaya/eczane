@@ -565,6 +565,7 @@ def fetch_duty_pharmacies(
     remote_token: str = "",
     allow_stale_fallback: bool = False,
     github_only: bool = True,
+    scrape_if_stale: bool = False,
 ) -> Dict[str, Any]:
     """
     Nöbetçi eczaneler.
@@ -594,8 +595,33 @@ def fetch_duty_pharmacies(
                     remote.get("date") or "-",
                 )
                 return remote
-            result = _result_from_rows(now, [])
             cache_day = str(remote.get("date") or "").strip()
+            if scrape_if_stale:
+                logger.warning(
+                    "GitHub eczane cache eski (%s) — canlı scrape deneniyor.",
+                    cache_day or "-",
+                )
+                scraped = fetch_duty_pharmacies(
+                    for_daily_publish=for_daily_publish,
+                    remote_url=remote_url,
+                    remote_token=remote_token,
+                    allow_stale_fallback=False,
+                    github_only=False,
+                    scrape_if_stale=False,
+                )
+                if scraped.get("ok") and str(scraped.get("date") or "") == today:
+                    scraped["source_mode"] = "scrape_after_stale_github"
+                    _save_today_cache(scraped)
+                    logger.info(
+                        "Nöbetçi eczane canlı kaynaktan alındı (GitHub cache: %s).",
+                        cache_day or "-",
+                    )
+                    return scraped
+                logger.warning(
+                    "Canlı eczane scrape başarısız: %s",
+                    scraped.get("error") or "bilinmiyor",
+                )
+            result = _result_from_rows(now, [])
             result["error"] = (
                 f"GitHub eczane cache güncel değil (cache: {cache_day}, bugün: {today})"
             )
