@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import logging
 import json
+import random
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -102,7 +104,7 @@ def _browser_headers(referer: str = "https://www.eczaneler.gen.tr/") -> Dict[str
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
+            "Chrome/131.0.0.0 Safari/537.36"
         ),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
         "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -120,21 +122,95 @@ def _browser_headers(referer: str = "https://www.eczaneler.gen.tr/") -> Dict[str
     }
 
 
-def _session() -> requests.Session:
-    s = requests.Session()
-    s.headers.update(_browser_headers())
-    return s
+_CURL_IMPERSONATES = (
+    "chrome131",
+    "chrome124",
+    "chrome120",
+    "chrome110",
+    "safari17_0",
+    "edge101",
+)
+
+
+class _EczanelerCurlFetcher:
+    """curl_cffi oturumu — cookie + TLS; 403 azaltmak için tek oturumda ısınma."""
+
+    def __init__(self) -> None:
+        self._session: Any = None
+        self._impersonate: str = ""
+
+    def _open_session(self) -> None:
+        from curl_cffi import requests as curl_requests
+
+        last_error: Optional[Exception] = None
+        for imp in _CURL_IMPERSONATES:
+            try:
+                sess = curl_requests.Session(impersonate=imp)
+                sess.get(
+                    "https://www.eczaneler.gen.tr/",
+                    headers=_browser_headers(),
+                    timeout=35,
+                )
+                time.sleep(1.2 + random.random())
+                sess.get(
+                    SOURCE_URL,
+                    headers=_browser_headers(SOURCE_URL),
+                    timeout=35,
+                )
+                time.sleep(0.8 + random.random() * 0.7)
+                self._session = sess
+                self._impersonate = imp
+                logger.debug("eczaneler.gen.tr curl oturumu: %s", imp)
+                return
+            except Exception as e:
+                last_error = e
+                time.sleep(0.6)
+        raise RuntimeError(str(last_error or "curl_cffi oturumu açılamadı"))
+
+    def fetch(self, url: str, *, referer: Optional[str] = None) -> str:
+        if self._session is None:
+            self._open_session()
+        ref = referer or (url if "eczaneler.gen.tr" in url else SOURCE_URL)
+        time.sleep(1.0 + random.random() * 1.8)
+        r = self._session.get(
+            url,
+            headers=_browser_headers(ref),
+            timeout=40,
+            allow_redirects=True,
+        )
+        r.raise_for_status()
+        return r.text
+
+
+_eczaneler_fetcher: Optional[_EczanelerCurlFetcher] = None
+
+
+def _reset_eczaneler_curl() -> None:
+    global _eczaneler_fetcher
+    _eczaneler_fetcher = None
+
+
+def _curl_fetcher() -> _EczanelerCurlFetcher:
+    global _eczaneler_fetcher
+    if _eczaneler_fetcher is None:
+        _eczaneler_fetcher = _EczanelerCurlFetcher()
+    return _eczaneler_fetcher
+
+
+def _fetch_url_html_curl(url: str, referer: Optional[str] = None) -> str:
+    """Öncelik: kalıcı curl oturumu (403'e karşı)."""
+    try:
+        return _curl_fetcher().fetch(url, referer=referer)
+    except ImportError as e:
+        raise RuntimeError("curl_cffi yüklü değil; pip install curl_cffi") from e
 
 
 def _fetch_url_html_browser(url: str, referer: str = "https://www.eczaneler.gen.tr/") -> str:
-    """curl_cffi ile gerçek Chrome TLS parmak izi kullan."""
-    try:
-        from curl_cffi import requests as curl_requests
-    except Exception as e:
-        raise RuntimeError("curl_cffi yüklü değil; pip install curl_cffi") from e
+    """Tek istek yedek — oturumsuz deneme."""
+    from curl_cffi import requests as curl_requests
 
     last_error: Optional[Exception] = None
-    for impersonate in ("chrome124", "chrome120", "chrome110"):
+    for impersonate in _CURL_IMPERSONATES:
         try:
             r = curl_requests.get(
                 url,
@@ -149,38 +225,36 @@ def _fetch_url_html_browser(url: str, referer: str = "https://www.eczaneler.gen.
     raise RuntimeError(str(last_error or "curl_cffi isteği başarısız"))
 
 
-def _fetch_url_html(session: requests.Session, url: str) -> str:
+def _fetch_url_html(_session: requests.Session, url: str) -> str:
+    """requests genelde 403 verir; önce curl oturumu."""
     try:
-        r = session.get(url, timeout=35)
-        r.raise_for_status()
-        r.encoding = r.apparent_encoding or "utf-8"
-        return r.text
-    except Exception as first_error:
+        return _fetch_url_html_curl(url, referer=url)
+    except Exception as curl_error:
         try:
-            return _fetch_url_html_browser(url)
-        except Exception as browser_error:
-            raise RuntimeError(f"{first_error}; curl_cffi: {browser_error}") from browser_error
+            r = _session.get(url, timeout=35)
+            r.raise_for_status()
+            r.encoding = r.apparent_encoding or "utf-8"
+            return r.text
+        except Exception as req_error:
+            try:
+                return _fetch_url_html_browser(url, referer=url)
+            except Exception as browser_error:
+                raise RuntimeError(
+                    f"curl: {curl_error}; requests: {req_error}; yedek: {browser_error}",
+                ) from browser_error
 
 
 def _fetch_source_html(now: datetime) -> str:
-    session = _session()
     errors: List[str] = []
-
-    # Ana sayfa isteği bazı sunucularda cookie/oturum oluşturuyor.
-    try:
-        session.get("https://www.eczaneler.gen.tr/", timeout=20)
-    except Exception:
-        pass
-
     for url in SOURCE_URLS[:2]:
         try:
-            return _fetch_url_html(session, url)
+            return _fetch_url_html_curl(url, referer=SOURCE_URL)
         except Exception as e:
             errors.append(f"{url}: {e}")
 
-    # Son çare: eski cache kırıcı parametreyi farklı başlıkla dene.
     try:
-        return _fetch_url_html(session, f"{SOURCE_URL}?tarih={now.strftime('%Y-%m-%d')}")
+        dated = f"{SOURCE_URL}?tarih={now.strftime('%Y-%m-%d')}"
+        return _fetch_url_html_curl(dated, referer=SOURCE_URL)
     except Exception as e:
         errors.append(f"{SOURCE_URL}?tarih=: {e}")
 
@@ -566,27 +640,22 @@ def _parse_today_rows_from_soup(
 
 
 def _fetch_district_page_html(url: str, session: requests.Session) -> str:
-    import time
-
     if _github_actions_runner():
-        time.sleep(2.0)
-        return _fetch_url_html_browser(url, referer=url)
+        time.sleep(2.5 + random.random())
     return _fetch_url_html(session, url)
 
 
 def _fetch_from_district_pages(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
-    session = _session()
+    session = requests.Session()
+    session.headers.update(_browser_headers())
     errors: List[str] = []
     all_rows: List[Dict[str, str]] = []
     periods: List[str] = []
 
     try:
-        if _github_actions_runner():
-            _fetch_url_html_browser("https://www.eczaneler.gen.tr/")
-        else:
-            session.get("https://www.eczaneler.gen.tr/", timeout=20)
-    except Exception:
-        pass
+        _curl_fetcher()._open_session()
+    except Exception as e:
+        logger.debug("İlçe scrape curl ısınma: %s", e)
 
     for key, _label in DISTRICT_ORDER:
         url = DISTRICT_SOURCE_URLS.get(key)
