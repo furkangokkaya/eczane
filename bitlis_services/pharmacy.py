@@ -27,6 +27,17 @@ CACHE_PATH = Path(__file__).resolve().parents[1] / "bitlis_pharmacy_cache.json"
 DEFAULT_GITHUB_CACHE_URL = (
     "https://raw.githubusercontent.com/furkangokkaya/eczane/main/bitlis_pharmacy_cache.json"
 )
+HURRIYET_CITY_URL = "https://www.hurriyet.com.tr/nobetci-eczaneler/bitlis/"
+HURRIYET_DISTRICT_SLUGS = {
+    "merkez": "merkez",
+    "mutki": "mutki",
+    "ahlat": "ahlat",
+    "adilcevaz": "adilcevaz",
+    "guroymak": "guroymak",
+    "hizan": "hizan",
+    "tatvan": "tatvan",
+}
+
 DISTRICT_SOURCE_URLS = {
     "merkez": "https://www.eczaneler.gen.tr/nobetci-bitlis-merkez",
     "mutki": "https://www.eczaneler.gen.tr/nobetci-bitlis-mutki",
@@ -369,6 +380,36 @@ def _district_key(label: str) -> Optional[str]:
     return DISTRICT_FROM_TEXT.get(low)
 
 
+def _parse_row_district_page(text: str, district_key: str) -> Optional[Dict[str, str]]:
+    """İlçe sayfası tablo satırı — metinde ilçe adı olmayabilir."""
+    text = re.sub(r"\s+", " ", (text or "").strip())
+    if len(text) < 15:
+        return None
+    phone_m = PHONE_RE.search(text)
+    if not phone_m:
+        return None
+    phone = _normalize_phone(phone_m.group(0))
+    before = text[: phone_m.start()].strip()
+    label_by_key = dict(DISTRICT_ORDER)
+    name = ""
+    nm = re.search(r"^(.+?Eczanesi)\s+", before, re.I)
+    if nm:
+        name = nm.group(1).strip()
+        address = before[nm.end() :].strip()
+    else:
+        parts = before.split(" ", 2)
+        name = parts[0] if parts else "Eczane"
+        address = before
+    address = re.sub(r"\s*»\s*", " · ", address).strip()
+    return {
+        "name": name,
+        "address": address,
+        "phone": phone,
+        "district_key": district_key,
+        "district_name": label_by_key.get(district_key, district_key),
+    }
+
+
 def _parse_row(text: str) -> Optional[Dict[str, str]]:
     text = re.sub(r"\s+", " ", (text or "").strip())
     if len(text) < 20:
@@ -630,11 +671,14 @@ def _parse_today_rows_from_soup(
     parsed: List[Dict[str, str]] = []
     for row in duty_table.find_all("tr")[1:]:
         cell = row.get_text(" ", strip=True)
-        item = _parse_row(cell)
-        if item:
-            if override_district_key and override_district_key in _EXPECTED_DISTRICT_KEYS:
+        if override_district_key and override_district_key in _EXPECTED_DISTRICT_KEYS:
+            item = _parse_row_district_page(cell, override_district_key)
+        else:
+            item = _parse_row(cell)
+            if item and override_district_key and override_district_key in _EXPECTED_DISTRICT_KEYS:
                 item["district_key"] = override_district_key
                 item["district_name"] = label_by_key.get(override_district_key, override_district_key)
+        if item:
             parsed.append(item)
     return parsed, period_text
 
@@ -643,6 +687,221 @@ def _fetch_district_page_html(url: str, session: requests.Session) -> str:
     if _github_actions_runner():
         time.sleep(2.5 + random.random())
     return _fetch_url_html(session, url)
+
+
+def _fetch_hurriyet_html(url: str) -> str:
+    """Hürriyet nöbetçi eczane — sunucuda genelde 200 (eczaneler.gen.tr 403 yedegi)."""
+    session = requests.Session()
+    session.headers.update(_browser_headers(referer=url))
+    r = session.get(url, timeout=40)
+    r.raise_for_status()
+    r.encoding = r.apparent_encoding or "utf-8"
+    return r.text
+
+
+def _parse_hurriyet_item_text(text: str, district_key: str) -> Optional[Dict[str, str]]:
+    text = re.sub(r"\s+", " ", (text or "").strip())
+    if "Eczanesi" not in text or not PHONE_RE.search(text):
+        return None
+    name_m = re.search(r"([\wğüşıöçĞÜŞİÖÇ][\wğüşıöçĞÜŞİÖÇ\s\-]{2,60}Eczanesi)", text, re.I)
+    phone = _normalize_phone(PHONE_RE.search(text).group(0))
+    addr_m = re.search(r"Adres:\s*(.+?)\s*Telefon:", text, re.I)
+    if not name_m or not addr_m:
+        return None
+    label_by_key = dict(DISTRICT_ORDER)
+    return {
+        "name": name_m.group(1).strip(),
+        "address": addr_m.group(1).strip(),
+        "phone": phone,
+        "district_key": district_key,
+        "district_name": label_by_key.get(district_key, district_key),
+    }
+
+
+def _parse_hurriyet_city_page(soup: BeautifulSoup) -> Tuple[List[Dict[str, str]], str]:
+    rows: List[Dict[str, str]] = []
+    periods: List[str] = []
+    for h2 in soup.find_all("h2"):
+        title = (h2.get_text(strip=True) or "").strip()
+        key = _district_key(title)
+        if not key:
+            continue
+        parent = h2.find_parent()
+        if not parent:
+            continue
+        item = _parse_hurriyet_item_text(parent.get_text(" ", strip=True), key)
+        if item:
+            rows.append(item)
+    blob = soup.get_text(" ", strip=True)
+    pm = PERIOD_RE.search(blob)
+    period = pm.group(0).strip() if pm else ""
+    return rows, period
+
+
+def _parse_hurriyet_district_page(soup: BeautifulSoup, district_key: str) -> Tuple[List[Dict[str, str]], str]:
+    rows: List[Dict[str, str]] = []
+    for item in soup.select(".ecz-module-pharmacy-item"):
+        parsed = _parse_hurriyet_item_text(item.get_text(" ", strip=True), district_key)
+        if parsed:
+            rows.append(parsed)
+    blob = soup.get_text(" ", strip=True)
+    pm = PERIOD_RE.search(blob)
+    period = pm.group(0).strip() if pm else ""
+    return rows, period
+
+
+def _fetch_from_hurriyet(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
+    """eczaneler.gen.tr 403 oldugunda Hürriyet kaynagi."""
+    del for_daily_publish
+    all_rows: List[Dict[str, str]] = []
+    periods: List[str] = []
+    errors: List[str] = []
+    seen: set[tuple[str, str]] = set()
+
+    def _add_rows(rows: List[Dict[str, str]]) -> None:
+        for row in rows:
+            sig = (row.get("district_key") or "", row.get("phone") or "")
+            if sig in seen:
+                continue
+            seen.add(sig)
+            all_rows.append(row)
+
+    for key, slug in HURRIYET_DISTRICT_SLUGS.items():
+        url = f"https://www.hurriyet.com.tr/nobetci-eczaneler/bitlis/{slug}/"
+        try:
+            time.sleep(0.8 + random.random() * 0.8)
+            soup = BeautifulSoup(_fetch_hurriyet_html(url), "lxml")
+            rows, period = _parse_hurriyet_district_page(soup, key)
+            _add_rows(rows)
+            if period and period not in periods:
+                periods.append(period)
+        except Exception as e:
+            errors.append(f"hurriyet/{slug}: {e}")
+
+    missing_keys = _EXPECTED_DISTRICT_KEYS - {
+        k for k in _EXPECTED_DISTRICT_KEYS
+        if any(r.get("district_key") == k for r in all_rows)
+    }
+    if missing_keys:
+        try:
+            soup = BeautifulSoup(_fetch_hurriyet_html(HURRIYET_CITY_URL), "lxml")
+            rows, period = _parse_hurriyet_city_page(soup)
+            for row in rows:
+                if row.get("district_key") in missing_keys:
+                    _add_rows([row])
+            if period and period not in periods:
+                periods.append(period)
+        except Exception as e:
+            errors.append(f"hurriyet city: {e}")
+
+    missing = _EXPECTED_DISTRICT_KEYS - {r.get("district_key") for r in all_rows}
+    if "merkez" in missing:
+        try:
+            url = DISTRICT_SOURCE_URLS["merkez"]
+            html = _fetch_url_html_curl(url, referer=url)
+            soup = BeautifulSoup(html, "lxml")
+            rows, _ = _parse_today_rows_from_soup(
+                soup,
+                now,
+                for_daily_publish=True,
+                override_district_key="merkez",
+            )
+            if rows:
+                _add_rows(rows)
+                logger.info("Merkez eczanesi eczaneler.gen.tr (curl) ile tamamlandi.")
+        except Exception as e:
+            errors.append(f"merkez curl: {e}")
+
+    result = _result_from_rows(now, all_rows, periods[0] if periods else "")
+    result["source"] = "hurriyet.com.tr"
+    result["source_mode"] = "hurriyet_fallback"
+    if not is_pharmacy_cache_complete(result):
+        result["ok"] = False
+        result["error"] = (
+            f"Hürriyet scrape eksik (total={result.get('total')}, min={MIN_PHARMACY_TOTAL}); "
+            + ("; ".join(errors[-4:]) if errors else "ilce eksik")
+        )
+    elif errors:
+        logger.debug("Hürriyet tamamlandi (kismi uyarilar): %s", "; ".join(errors[-2:]))
+    return result
+
+
+def _scrape_eczaneler_gen_tr(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
+    """Mevcut eczaneler.gen.tr akisi."""
+    today = now.strftime("%Y-%m-%d")
+    result: Dict[str, Any] = _result_from_rows(now, [])
+
+    try:
+        soup = BeautifulSoup(_fetch_source_html(now), "lxml")
+    except Exception as e:
+        logger.warning("Nöbetçi eczane ana sayfası alınamadı, ilçe sayfaları deneniyor: %s", e)
+        return _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
+
+    parsed, period_text = _parse_today_rows_from_soup(
+        soup, now, for_daily_publish=for_daily_publish,
+    )
+    if not period_text:
+        result["error"] = "Tablo bulunamadı"
+        return result
+
+    result = _result_from_rows(now, parsed, period_text)
+    result["source"] = "eczaneler.gen.tr"
+    if result.get("ok") and not is_pharmacy_cache_complete(result):
+        result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
+    if not result.get("ok"):
+        result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
+    if result.get("ok") and not is_pharmacy_cache_complete(result):
+        result["ok"] = False
+        result["error"] = (
+            f"Eczane listesi eksik (total={result.get('total')}, min={MIN_PHARMACY_TOTAL})"
+        )
+    if (
+        result.get("ok")
+        and is_pharmacy_cache_complete(result)
+        and str(result.get("date") or "") == today
+    ):
+        _save_today_cache(result)
+    return result
+
+
+def _scrape_live_pharmacies(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
+    """Önce eczaneler.gen.tr; 403 veya eksikse Hürriyet."""
+    today = now.strftime("%Y-%m-%d")
+    _reset_eczaneler_curl()
+
+    gen = _scrape_eczaneler_gen_tr(now, for_daily_publish=for_daily_publish)
+    if (
+        gen.get("ok")
+        and is_pharmacy_cache_complete(gen)
+        and str(gen.get("date") or "") == today
+    ):
+        return gen
+
+    logger.warning(
+        "eczaneler.gen.tr basarisiz veya eksik (%s) — Hürriyet deneniyor.",
+        gen.get("error") or f"total={gen.get('total')}",
+    )
+    hur = _fetch_from_hurriyet(now, for_daily_publish=for_daily_publish)
+    if (
+        hur.get("ok")
+        and is_pharmacy_cache_complete(hur)
+        and str(hur.get("date") or "") == today
+    ):
+        _save_today_cache(hur)
+        logger.info(
+            "Nöbetçi eczane Hürriyet kaynagindan alindi (%d eczane).",
+            int(hur.get("total") or 0),
+        )
+        return hur
+
+    cached = _load_today_cache(now)
+    if cached and is_pharmacy_cache_complete(cached):
+        logger.warning("Canli scrape basarisiz; yerel bugun cache kullaniliyor.")
+        return cached
+
+    err_parts = [gen.get("error"), hur.get("error")]
+    hur["error"] = " | ".join(p for p in err_parts if p) or "Eczane verisi alinamadi"
+    return hur
 
 
 def _fetch_from_district_pages(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
@@ -766,71 +1025,4 @@ def fetch_duty_pharmacies(
         logger.info("Nöbetçi eczane GitHub cache: %s", url)
         return remote
 
-    result: Dict[str, Any] = _result_from_rows(now, [])
-    remote_fallback: Optional[Dict[str, Any]] = None
-
-    try:
-        soup = BeautifulSoup(_fetch_source_html(now), "lxml")
-    except Exception as e:
-        logger.warning("Nöbetçi eczane ana sayfası alınamadı, ilçe sayfaları deneniyor: %s", e)
-        result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
-        if (
-            result.get("ok")
-            and is_pharmacy_cache_complete(result)
-            and str(result.get("date") or "") == today
-        ):
-            _save_today_cache(result)
-            return result
-        if remote_fallback and allow_stale_fallback:
-            logger.warning("Yerel kaynak da başarısız; uzak stale eczane verisi kullanılacak.")
-            return remote_fallback
-        if remote_fallback:
-            result = _result_from_rows(now, [])
-            result["error"] = (
-                f"Bugünkü eczane verisi yok (uzak cache: {remote_fallback.get('date')})"
-            )
-            result["_stale"] = True
-            return result
-        cached = _load_today_cache(now)
-        if cached:
-            logger.warning("Canlı eczane alınamadı; bugünkü eczaneler.gen.tr cache kullanılıyor.")
-            return cached
-        return result
-
-    parsed, period_text = _parse_today_rows_from_soup(
-        soup, now, for_daily_publish=for_daily_publish,
-    )
-    if not period_text:
-        result["error"] = "Tablo bulunamadı"
-        return result
-
-    result = _result_from_rows(now, parsed, period_text)
-    result["source"] = "eczaneler.gen.tr"
-    if result.get("ok") and not is_pharmacy_cache_complete(result):
-        result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
-    if not result.get("ok"):
-        result = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
-        if not result.get("ok"):
-            if remote_fallback and allow_stale_fallback:
-                logger.warning("Yerel parse başarısız; uzak stale eczane verisi kullanılacak.")
-                return remote_fallback
-            if remote_fallback:
-                result = _result_from_rows(now, [])
-                result["error"] = (
-                    f"Bugünkü eczane verisi yok (uzak cache: {remote_fallback.get('date')})"
-                )
-                result["_stale"] = True
-                return result
-            result["error"] = "Eczane satırı parse edilemedi"
-    if (
-        result.get("ok")
-        and is_pharmacy_cache_complete(result)
-        and str(result.get("date") or "") == today
-    ):
-        _save_today_cache(result)
-    elif result.get("ok") and not is_pharmacy_cache_complete(result):
-        result["ok"] = False
-        result["error"] = (
-            f"Eczane listesi eksik (total={result.get('total')}, min={MIN_PHARMACY_TOTAL})"
-        )
-    return result
+    return _scrape_live_pharmacies(now, for_daily_publish=for_daily_publish)
