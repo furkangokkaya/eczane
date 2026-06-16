@@ -1,17 +1,17 @@
 {
   "ok": true,
-  "date": "2026-06-15",
-  "date_label": "15.06.2026",
-  "period": "15 Haziran Pazartesi akşamından 16 Haziran Salı sabahına kadar.",
+  "date": "2026-06-16",
+  "date_label": "16.06.2026",
+  "period": "16 Haziran Salı akşamından 17 Haziran Çarşamba sabahına kadar.",
   "districts": [
     {
       "key": "merkez",
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "Toprak Eczanesi",
-          "address": "Gazibey Mah. Nurullah Eren Cad. No:56 ( Ulu Cami Karşısı )",
-          "phone": "0(434)829-13-14"
+          "name": "Aybat Eczanesi",
+          "address": "Hüsrevpaşa Mah. Ahmet Eren Bulvarı No:57/3b ( Aile Sağlığı Merkezi Yanı )",
+          "phone": "0(434)502-45-45"
         }
       ],
       "count": 1,
@@ -29,9 +29,9 @@
       "name": "Ahlat",
       "pharmacies": [
         {
-          "name": "Yıldız Eczanesi",
-          "address": "Selçuklu Mah. Cumhuriyet Cad. Prof. Dr. Haluk Dursun Sk. No:3/9",
-          "phone": "0(434)502-66-57"
+          "name": "Derman Eczanesi",
+          "address": "Selçuklu Mahallesi Selçuklu Sokak No:91/95b",
+          "phone": "0(434)412-50-40"
         }
       ],
       "count": 1,
@@ -42,9 +42,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "Esen Eczanesi",
-          "address": "Cevizli Mah. 801. Sokak No:4 A",
-          "phone": "0(434)311-20-01"
+          "name": "Kağan Eczanesi",
+          "address": "Çayır Mah. Recep Tayyip Erdoğan Bulvarı No:23/c",
+          "phone": "0(434)311-23-39"
         }
       ],
       "count": 1,
@@ -55,9 +55,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "Uğur Eczanesi",
-          "address": "Girne Mah. Muş Bulvarı No:19",
-          "phone": "0(434)511-26-47"
+          "name": "Yavuz Eczanesi",
+          "address": "Bağlar Mahallesi Muş Caddesi 506. Sok. No:21",
+          "phone": "0(434)511-33-13"
         }
       ],
       "count": 1,
@@ -68,9 +68,9 @@
       "name": "Hizan",
       "pharmacies": [
         {
-          "name": "Halk Eczanesi",
-          "address": "Kültür Mahallesi Faruk Bekarlar Cad. No:2/b",
-          "phone": "0(434)611-24-83"
+          "name": "Eylül Eczanesi",
+          "address": "Cum. Cad. Ptt Karsısı No:26/d",
+          "phone": "0(434)611-12-48"
         }
       ],
       "count": 1,
@@ -81,14 +81,14 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "Nil Eczanesi",
-          "address": "Kültür Mah. Hızır Öztürk Sokak No:33/a Tatvan ( 4. Nolu Aile Sağlığı Merkezi Karşısı )",
-          "phone": "0(434)827-74-72"
+          "name": "Ela Eczanesi",
+          "address": "Kültür Mahlesi Cemal Taşar Cad. No:63",
+          "phone": "0(434)827-06-20"
         },
         {
-          "name": "Zehra Eczanesi",
-          "address": "Karşıyaka Mah. Hastane Caddesi Sağlıkiş Merkezi No:20/l ( Rahvamevki )",
-          "phone": "0(434)829-12-52"
+          "name": "Göl Eczanesi",
+          "address": "Karşıyaka Mah. Hastane Cad. Sağlık İş Merkezi No:20/j ( Rahva Mevki )",
+          "phone": "0(434)827-00-99"
         }
       ],
       "count": 2,
@@ -96,7 +96,7 @@
     }
   ],
   "total": 7,
-  "fetched_at": "2026-06-15T23:38:31+03:00",
+  "fetched_at": "2026-06-16T23:19:57+03:00",
   "source": "bitlis.eczaneleri.org",
   "source_mode": "eczaneleri_city",
   "source_url": "https://bitlis.eczaneleri.org/"
