@@ -1,17 +1,17 @@
 {
   "ok": true,
-  "date": "2026-06-28",
-  "date_label": "28.06.2026",
-  "period": "28 Haziran Pazar akşamından 29 Haziran Pazartesi sabahına kadar.",
+  "date": "2026-06-29",
+  "date_label": "29.06.2026",
+  "period": "29 Haziran Pazartesi akşamından 30 Haziran Salı sabahına kadar.",
   "districts": [
     {
       "key": "merkez",
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "Bal Eczanesi",
-          "address": "İnönü Mah. Bediüzzaman Said-i Kürdicad. No:31/a ( Çarşı Merkez Bestvan Turizm Yanı )",
-          "phone": "0(434)502-52-77"
+          "name": "Umut Eczanesi",
+          "address": "Gazibey Mah. Kale Altı Cad. No:54/a",
+          "phone": "0(434)226-75-75"
         }
       ],
       "count": 1,
@@ -27,14 +27,8 @@
     {
       "key": "ahlat",
       "name": "Ahlat",
-      "pharmacies": [
-        {
-          "name": "Derman Eczanesi",
-          "address": "Selçuklu Mahallesi Selçuklu Sokak No:91/95b",
-          "phone": "0(434)412-50-40"
-        }
-      ],
-      "count": 1,
+      "pharmacies": [],
+      "count": 0,
       "no_duty": false
     },
     {
@@ -42,9 +36,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "Sağlık Eczanesi",
-          "address": "Orta Mah. Cumhuriyet Cad. No:19/b",
-          "phone": "0(434)311-46-52"
+          "name": "Mavi Eczanesi",
+          "address": "Atatürk Mah. Karaveli Cad. 27/2",
+          "phone": "0(434)311-40-78"
         }
       ],
       "count": 1,
@@ -55,9 +49,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "Derman Eczanesi",
-          "address": "Şenova Mah. Muş Bulvarı 75/77",
-          "phone": "0(434)511-30-30"
+          "name": "Şifa Eczanesi",
+          "address": "Mus Cad. No:6 Güroymak",
+          "phone": "0(434)511-37-40"
         }
       ],
       "count": 1,
@@ -68,9 +62,9 @@
       "name": "Hizan",
       "pharmacies": [
         {
-          "name": "Eylül Eczanesi",
-          "address": "Cum. Cad. Ptt Karsısı No:26/d",
-          "phone": "0(434)611-12-48"
+          "name": "Sağlık Eczanesi",
+          "address": "Kültür Mah. Farukbekarlar Cad. No:3/e",
+          "phone": "0(536)392-34-13"
         }
       ],
       "count": 1,
@@ -81,22 +75,22 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "Can Eczanesi",
-          "address": "Kültür Mah. Şehmuz Zırhlı Cad. Efil Sk. No:1 ( Can Hast. Karş. )",
-          "phone": "0(434)502-13-23"
+          "name": "Altındal Eczanesi",
+          "address": "Karşıyaka Mah. Hastane Cad. Sağlık İş Merkezi No:20/b ( Rahva Mevki )",
+          "phone": "0(434)829-13-81"
         },
         {
-          "name": "Su Eczanesi",
-          "address": "Karşıyaka Mah. Hastane Caddesi Sağlık İş Merkezi No:20/f ( Tatvan Bitlis Devlet Hast. Karş. )",
-          "phone": "0(434)829-13-85"
+          "name": "Deva Eczanesi",
+          "address": "Cumhuriyet Cad. No:131",
+          "phone": "0(434)827-05-35"
         }
       ],
       "count": 2,
       "no_duty": false
     }
   ],
-  "total": 7,
-  "fetched_at": "2026-06-28T13:52:31+03:00",
+  "total": 6,
+  "fetched_at": "2026-06-29T15:50:48+03:00",
   "source": "bitlis.eczaneleri.org",
   "source_mode": "eczaneleri_city",
   "source_url": "https://bitlis.eczaneleri.org/"
