@@ -1,17 +1,17 @@
 {
   "ok": true,
-  "date": "2026-08-15",
-  "date_label": "15.08.2026",
-  "period": "15 Ağustos Cumartesi akşamından 16 Ağustos Pazar sabahına kadar.",
+  "date": "2026-08-16",
+  "date_label": "16.08.2026",
+  "period": "16 Ağustos Pazar akşamından 17 Ağustos Pazartesi sabahına kadar.",
   "districts": [
     {
       "key": "merkez",
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "Bitlis Eczanesi",
-          "address": "Hüsrevpaşa Mah. 1208 Sk. A/blok No:6h ( Nokta Market Yanı )",
-          "phone": "0(434)226-06-26"
+          "name": "Çınar Eczanesi",
+          "address": "Beşminare Mah. Ahmet Eren Bulvarı A/blok 120b No:46 ( Diş Hastanesi Karş. )",
+          "phone": "0(434)502-29-00"
         }
       ],
       "count": 1,
@@ -29,17 +29,12 @@
       "name": "Ahlat",
       "pharmacies": [
         {
-          "name": "Atalay Eczanesi",
-          "address": "Selçuklu Mah. Şehit Mesut Ardınç Caddesi Ne:14/b",
-          "phone": "0(501)703-53-13"
-        },
-        {
-          "name": "Derman Eczanesi",
-          "address": "Selçuklu Mahallesi Selçuklu Sokak No:91/95b",
-          "phone": "0(434)412-50-40"
+          "name": "Tatlısu Eczanesi",
+          "address": "Ergezen Mah. Mazlum Yegül Cad. No:139 Ahlat/bitlis",
+          "phone": "0(434)412-57-57"
         }
       ],
-      "count": 2,
+      "count": 1,
       "no_duty": false
     },
     {
@@ -47,9 +42,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "Sağlık Eczanesi",
-          "address": "Orta Mah. Cumhuriyet Cad. No:19/b",
-          "phone": "0(434)311-46-52"
+          "name": "Mavi Eczanesi",
+          "address": "Atatürk Mah. Karaveli Cad. 27/2",
+          "phone": "0(434)311-40-78"
         }
       ],
       "count": 1,
@@ -60,9 +55,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "Emek Eczanesi",
-          "address": "Mus Cad. No :24",
-          "phone": "0(434)511-21-50"
+          "name": "Norşin Eczanesi",
+          "address": "Barış Mahallesi Ziraat Bankası Arkası Emniyet Amirliği Yanı 1002. Sk. Kapı No:8",
+          "phone": "0(542)133-95-13"
         }
       ],
       "count": 1,
@@ -73,9 +68,9 @@
       "name": "Hizan",
       "pharmacies": [
         {
-          "name": "Eylül Eczanesi",
-          "address": "Cum. Cad. Ptt Karsısı No:26/d",
-          "phone": "0(434)611-12-48"
+          "name": "Sağlık Eczanesi",
+          "address": "Kültür Mah. Farukbekarlar Cad. No:3/e",
+          "phone": "0(536)392-34-13"
         }
       ],
       "count": 1,
@@ -86,22 +81,22 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "Dünya Eczanesi",
-          "address": "Tuğ Mah. Cumhuriyet Bulvarı No:242/c ( Baran Kuyumculuk Karşısı )",
-          "phone": "0(434)827-33-13"
+          "name": "Ela Eczanesi",
+          "address": "Kültür Mahlesi Cemal Taşar Cad. No:63",
+          "phone": "0(434)827-06-20"
         },
         {
-          "name": "Göl Eczanesi",
-          "address": "Karşıyaka Mah. Hastane Cad. Sağlık İş Merkezi No:20/j ( Rahva Mevki )",
-          "phone": "0(434)827-00-99"
+          "name": "Mutlu Eczanesi",
+          "address": "Karşıyaka Mah. Bitlis Tatvan Devlet Hastanesi Karşısı Sağlık İş Merkezi No:g/20 ( Rahva Mevki )",
+          "phone": "0(434)829-11-11"
         }
       ],
       "count": 2,
       "no_duty": false
     }
   ],
-  "total": 8,
-  "fetched_at": "2026-08-15T11:57:46+03:00",
+  "total": 7,
+  "fetched_at": "2026-08-16T11:58:56+03:00",
   "source": "bitlis.eczaneleri.org",
   "source_mode": "eczaneleri_city",
   "source_url": "https://bitlis.eczaneleri.org/"
