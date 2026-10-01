@@ -1,0 +1,68 @@
+# Günlük nöbetçi eczane — bitlis.eczaneleri.org → bitlis_pharmacy_cache.json
+
+name: Pharmacy cache daily
+
+on:
+  schedule:
+    # 11:35 ve 11:50 TR (08:35 / 08:50 UTC) — yedek slot
+    - cron: "35 8 * * *"
+    - cron: "50 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pharmacy-cache-main
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Fetch origin
+        run: git fetch origin main
+
+      - name: Remote cache kontrol
+        id: remote
+        env:
+          TZ: Europe/Istanbul
+        run: python scripts/remote_cache_ready.py
+
+      - name: Scrape eczaneleri.org (3 deneme)
+        if: steps.remote.outputs.ready != 'true'
+        env:
+          TZ: Europe/Istanbul
+        run: |
+          for attempt in 1 2 3; do
+            echo "Deneme $attempt/3"
+            python github_update_pharmacy_cache.py && exit 0
+            sleep $((12 * attempt))
+          done
+          exit 1
+
+      - name: Verify cache
+        if: steps.remote.outputs.ready != 'true'
+        env:
+          TZ: Europe/Istanbul
+        run: python scripts/verify_pharmacy_cache.py
+
+      - name: Commit and push
+        if: steps.remote.outputs.ready != 'true'
+        env:
+          TZ: Europe/Istanbul
+        run: python scripts/push_pharmacy_cache.py

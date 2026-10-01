@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "date": "2026-10-01",
+  "date_label": "01.10.2026",
+  "period": "1 Ekim Perşembe akşamından 2 Ekim Cuma sabahına kadar.",
+  "districts": [
+    {
+      "key": "merkez",
+      "name": "Merkez",
+      "pharmacies": [
+        {
+          "name": "Hayat Eczanesi",
+          "address": "Gazi Bey Mah. Bediüzzaman Said-i Kurdi Cad. ( Vakıfbank Yanı )",
+          "phone": "+904342260388"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "mutki",
+      "name": "Mutki",
+      "pharmacies": [
+        {
+          "name": "Deva Eczanesi",
+          "address": "Yeni Mahalle Kiler Caddesi No:12/e",
+          "phone": "+905534541221"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "ahlat",
+      "name": "Ahlat",
+      "pharmacies": [
+        {
+          "name": "Tatlısu Eczanesi",
+          "address": "Ergezen Mah. Mazlum Yegül Cad. No:139 Ahlat /bitlis",
+          "phone": "+904344125757"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "adilcevaz",
+      "name": "Adilcevaz",
+      "pharmacies": [
+        {
+          "name": "Emre Eczanesi",
+          "address": "Atatürk Mah. Hastane Caddesi No:46/d",
+          "phone": "+905370301320"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "guroymak",
+      "name": "Güroymak",
+      "pharmacies": [
+        {
+          "name": "Can Eczanesi",
+          "address": "Bağlar Mah. 504. Sk. Dış Kapı No:5a",
+          "phone": "+904345112113"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "hizan",
+      "name": "Hizan",
+      "pharmacies": [
+        {
+          "name": "Halk Eczanesi",
+          "address": "Kültür Mahallesi Faruk Bekarlar Cad. No:2/b",
+          "phone": "+904346112483"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "tatvan",
+      "name": "Tatvan",
+      "pharmacies": [
+        {
+          "name": "Ela Eczanesi",
+          "address": "Kültür Mahlesi Cemal Taşar Cad. No:63",
+          "phone": "+904348270620"
+        },
+        {
+          "name": "Su Eczanesi",
+          "address": "Karşıyaka Mah. Hastane Caddesi Sağlık İş Merkezi No:20/f ( Tatvan Bitlis Devlet Hast. Karş. )",
+          "phone": "+904348291385"
+        }
+      ],
+      "count": 2,
+      "no_duty": false
+    }
+  ],
+  "total": 8,
+  "fetched_at": "2026-10-01T23:16:46+03:00",
+  "source": "bitlis.eczaneleri.org",
+  "source_mode": "eczaneleri_city",
+  "source_url": "https://bitlis.eczaneleri.org/"
+}
