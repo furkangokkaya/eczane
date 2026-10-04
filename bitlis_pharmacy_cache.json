@@ -1,17 +1,17 @@
 {
   "ok": true,
-  "date": "2026-10-03",
-  "date_label": "03.10.2026",
-  "period": "3 Ekim Cumartesi akşamından 4 Ekim Pazar sabahına kadar.",
+  "date": "2026-10-04",
+  "date_label": "04.10.2026",
+  "period": "4 Ekim Pazar akşamından 5 Ekim Pazartesi sabahına kadar.",
   "districts": [
     {
       "key": "merkez",
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "Büyük Halk Eczanesi",
-          "address": "Beşminare Mah. 1336 Sk. B/blok No:37 ( Üniversite Mevki 4. Etap Toki Giriş Yanı )",
-          "phone": "+905015421313"
+          "name": "Büşra Eczanesi",
+          "address": "Hüsrevpaşa Mah. Çam Sitesi Ziraat Bankası Karşısı 1205 Sokak No:2/a",
+          "phone": "+904342288080"
         }
       ],
       "count": 1,
@@ -22,9 +22,9 @@
       "name": "Mutki",
       "pharmacies": [
         {
-          "name": "Can Eczanesi",
-          "address": "Pınarbaşı Mah. Halk Sokak No: 2/1 Mutki / Bitlis",
-          "phone": "+904347112020"
+          "name": "Deva Eczanesi",
+          "address": "Yeni Mahalle Kiler Caddesi No:12/e",
+          "phone": "+905534541221"
         }
       ],
       "count": 1,
@@ -35,9 +35,9 @@
       "name": "Ahlat",
       "pharmacies": [
         {
-          "name": "Rihan Eczanesi",
-          "address": "Selçuklu Mah. Şehit Mesut Ardıç Cad. No:33a",
-          "phone": "+904344127272"
+          "name": "Nur Eczanesi",
+          "address": "Selçuklu Mah. Şehit Mesut Ardıç Caddesi No:71 Dükkan 31",
+          "phone": "+905306833772"
         }
       ],
       "count": 1,
@@ -48,9 +48,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "Mavi Eczanesi",
-          "address": "Atatürk Mah. Karaveli Cad. 27/2",
-          "phone": "+904343114078"
+          "name": "Bulvar Eczanesi",
+          "address": "Çayır Mah. Cumhuriyet Caddesi No:276/e",
+          "phone": "+904345026702"
         }
       ],
       "count": 1,
@@ -61,9 +61,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "Turan Eczanesi",
-          "address": "Bağlar Mah. Muş Bulv. No:44a",
-          "phone": "+904345112280"
+          "name": "Derman Eczanesi",
+          "address": "Şenova Mah. Muş Bulvarı 75/77",
+          "phone": "+904345113030"
         }
       ],
       "count": 1,
@@ -72,14 +72,8 @@
     {
       "key": "hizan",
       "name": "Hizan",
-      "pharmacies": [
-        {
-          "name": "Sağlık Eczanesi",
-          "address": "Kültür Mah. Farukbekarlar Cad. No:3/e",
-          "phone": "+905363923413"
-        }
-      ],
-      "count": 1,
+      "pharmacies": [],
+      "count": 0,
       "no_duty": false
     },
     {
@@ -87,22 +81,22 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "Fuar Eczanesi",
-          "address": "Fuar Mah. Cumhuriyet Bulvarı No:392/a",
-          "phone": "+904348282813"
+          "name": "Göl Eczanesi",
+          "address": "Karşıyaka Mah. Hastane Cad. Sağlık İş Merkezi No:20/j ( Rahva Mevki )",
+          "phone": "+904348270099"
         },
         {
-          "name": "Zehra Eczanesi",
-          "address": "Karşıyaka Mah. Hastane Caddesi Sağlıkiş Merkezi No:20/l ( Rahvamevki )",
-          "phone": "+904348291252"
+          "name": "Hayat Eczanesi",
+          "address": "Kültür Mah. Efil Sk. No:2g ( Can Hast. Karş. )",
+          "phone": "+904348280294"
         }
       ],
       "count": 2,
       "no_duty": false
     }
   ],
-  "total": 8,
-  "fetched_at": "2026-10-03T16:39:09+03:00",
+  "total": 7,
+  "fetched_at": "2026-10-04T17:19:57+03:00",
   "source": "bitlis.eczaneleri.org",
   "source_mode": "eczaneleri_city",
   "source_url": "https://bitlis.eczaneleri.org/"
