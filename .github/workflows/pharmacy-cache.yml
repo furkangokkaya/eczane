@@ -8,6 +8,12 @@ on:
     - cron: "35 8 * * *"
     - cron: "50 8 * * *"
   workflow_dispatch:
+  # GitHub cron'ları saatlerce gecikebiliyor; bot .trigger/ dosyasını
+  # yazınca (yalnızca Contents yetkili PAT) workflow anında çalışır.
+  push:
+    branches: [main]
+    paths:
+      - ".trigger/**"
 
 permissions:
   contents: write
