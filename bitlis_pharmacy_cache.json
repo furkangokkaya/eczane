@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "date": "2026-10-31",
+  "date_label": "31.10.2026",
+  "period": "31 Ekim 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
+  "districts": [
+    {
+      "key": "merkez",
+      "name": "Merkez",
+      "pharmacies": [
+        {
+          "name": "AYBAT Eczanesi",
+          "address": "HÜSREVPAŞA MAH.AHMET EREN BULVARI NO:57/3B (AİLE SAĞLIĞI MERKEZİ YANI) 04345024545",
+          "phone": "0(434)502-45-45"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "mutki",
+      "name": "Mutki",
+      "pharmacies": [
+        {
+          "name": "DEVA Eczanesi",
+          "address": "Yeni Mahalle Kiler Caddesi no:12/E 05534541221",
+          "phone": "0(553)454-12-21"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "ahlat",
+      "name": "Ahlat",
+      "pharmacies": [
+        {
+          "name": "SÜPHAN Eczanesi",
+          "address": "SELÇUKLU ÇARŞISI HAST CAD.ŞERBETÇİOĞLU İŞ HANI 04344127009",
+          "phone": "0(434)412-70-09"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "adilcevaz",
+      "name": "Adilcevaz",
+      "pharmacies": [
+        {
+          "name": "YENİ ADİLCEVAZ Eczanesi",
+          "address": "CEVİZLİ MAH. 801.SOKAK NO:4 04343112012",
+          "phone": "0(434)311-20-12"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "guroymak",
+      "name": "Güroymak",
+      "pharmacies": [
+        {
+          "name": "DERMAN Eczanesi",
+          "address": "ŞENOVA MAH.MUŞ BULVARI 75/77 04345113030",
+          "phone": "0(434)511-30-30"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "hizan",
+      "name": "Hizan",
+      "pharmacies": [
+        {
+          "name": "HALK Eczanesi",
+          "address": "KÜLTÜR MAHALLESİ FARUK BEKARLAR CAD. NO:2/B 04346112483",
+          "phone": "0(434)611-24-83"
+        }
+      ],
+      "count": 1,
+      "no_duty": false
+    },
+    {
+      "key": "tatvan",
+      "name": "Tatvan",
+      "pharmacies": [
+        {
+          "name": "NIL Eczanesi",
+          "address": "KÜLTÜR MAH. HIZIR ÖZTÜRK SOKAK NO:33/A TATVAN (4.NOLU AİLE SAĞLIĞI MERKEZİ KARŞISI) 04348277472",
+          "phone": "0(434)827-74-72"
+        },
+        {
+          "name": "SU Eczanesi",
+          "address": "KARŞIYAKA MAH.HASTANE CADDESİ SAĞLIK İŞ MERKEZİ NO:20/F(TATVAN BİTLİS DEVLET HAST.KARŞ.) 04348291385",
+          "phone": "0(434)829-13-85"
+        }
+      ],
+      "count": 2,
+      "no_duty": false
+    }
+  ],
+  "total": 8,
+  "fetched_at": "2026-10-31T12:52:35+03:00",
+  "source": "bitlisecza.org.tr",
+  "source_mode": "bitlisecza_official",
+  "source_url": "https://www.bitlisecza.org.tr/nobetci-eczaneler"
+}
