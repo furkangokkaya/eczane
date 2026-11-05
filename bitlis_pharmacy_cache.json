@@ -9,9 +9,9 @@
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "ÇINAR Eczanesi",
-          "address": "BEŞMİNARE MAH.AHMET EREN BULVARI A/BLOK 120B NO:46 ( DİŞ HASTANESİ KARŞ.) 04345022900",
-          "phone": "0(434)502-29-00"
+          "name": "TOPRAK Eczanesi",
+          "address": "GAZİBEY MAH.NURULLAH EREN CAD.NO:56 (ULU CAMİ KARŞISI)",
+          "phone": "0(434)829-13-14"
         }
       ],
       "count": 1,
@@ -22,9 +22,9 @@
       "name": "Mutki",
       "pharmacies": [
         {
-          "name": "BARIŞ Eczanesi",
-          "address": "YENİ MAH.KİLER CAD.1 NO:2/A 04347112625",
-          "phone": "0(434)711-26-25"
+          "name": "CAN Eczanesi",
+          "address": "Pınarbaşı Mah. Halk sokak No: 2/1 Mutki/ Bitlis",
+          "phone": "0(434)711-20-20"
         }
       ],
       "count": 1,
@@ -35,9 +35,9 @@
       "name": "Ahlat",
       "pharmacies": [
         {
-          "name": "ŞEKER Eczanesi",
-          "address": "SELÇUKLU MAHALLESİ ŞEHİT MESUT ARDIÇ CAD .NO:14/A 05070848202",
-          "phone": "0(507)084-82-02"
+          "name": "YILDIZ Eczanesi",
+          "address": "SELÇUKLU MAH.CUMHURİYET CAD.PROF.DR.HALUK DURSUN SK.NO:3/9 yukarı çarşı denizbank arkası",
+          "phone": "0(434)502-66-57"
         }
       ],
       "count": 1,
@@ -48,9 +48,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "MAVİ Eczanesi",
-          "address": "ATATÜRK MAH. KARAVELİ CAD. 27/2 adilcevaz onkoloji hastanesi üstü 04343114078",
-          "phone": "0(434)311-40-78"
+          "name": "BULVAR Eczanesi",
+          "address": "ÇAYIR MAH. CUMHURİYET CADDESİ NO:276/E",
+          "phone": "0(434)502-67-02"
         }
       ],
       "count": 1,
@@ -61,9 +61,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "SİFA Eczanesi",
-          "address": "MUS CAD. NO:6 GÜROYMAK 04345113740",
-          "phone": "0(434)511-37-40"
+          "name": "TURAN Eczanesi",
+          "address": "BAĞLAR MAH. MUŞ BULV. NO:44A",
+          "phone": "0(434)511-22-80"
         }
       ],
       "count": 1,
@@ -74,9 +74,9 @@
       "name": "Hizan",
       "pharmacies": [
         {
-          "name": "ŞİFA Eczanesi",
-          "address": "KÜLTÜR MAH.HÜKÜMET CAD.NO:40/B 05010860447",
-          "phone": "0(501)086-04-47"
+          "name": "HİZAN ZARA Eczanesi",
+          "address": "KÜLTÜR MAH.HÜKÜMET CAD.NO:42/G",
+          "phone": "0(434)611-21-00"
         }
       ],
       "count": 1,
@@ -87,14 +87,14 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "ŞİFA Eczanesi",
-          "address": "CUM. CAD. NO:280 04348274053",
-          "phone": "0(434)827-40-53"
+          "name": "SU Eczanesi",
+          "address": "KARŞIYAKA MAH.HASTANE CADDESİ SAĞLIK İŞ MERKEZİ NO:20/F(TATVAN BİTLİS DEVLET HAST.KARŞ.)",
+          "phone": "0(434)829-13-85"
         },
         {
-          "name": "MUTLU Eczanesi",
-          "address": "KARŞIYAKA MAH. BİTLİS TATVAN DEVLET HASTANESİ KARŞISI SAĞLIK İŞ MERKEZİ NO:G/20 (RAHVA MEVKİ) 04348291111",
-          "phone": "0(434)829-11-11"
+          "name": "TARÇIN Eczanesi",
+          "address": "KÜLTÜR MAH.CEMAL TAŞAR CAD.NO:63 EK BİNA HASTANE KARŞISI",
+          "phone": "0(434)827-06-27"
         }
       ],
       "count": 2,
@@ -102,7 +102,7 @@
     }
   ],
   "total": 8,
-  "fetched_at": "2026-11-05T02:21:48+03:00",
+  "fetched_at": "2026-11-05T12:37:15",
   "source": "bitlisecza.org.tr",
   "source_mode": "bitlisecza_official",
   "source_url": "https://www.bitlisecza.org.tr/nobetci-eczaneler"
