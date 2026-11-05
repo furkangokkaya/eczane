@@ -1301,6 +1301,35 @@ def _fetch_bitlisecza_html(url: str = BITLISECZA_URL) -> str:
         raise RuntimeError(f"bitlisecza.org.tr alınamadı: {e1}") from e1
 
 
+def _bitlisecza_address(paragraph) -> str:
+    """Kart paragrafında yalnızca adres: telefon ve harita linki karışmasın."""
+    chunks: List[str] = []
+    for child in getattr(paragraph, "children", []):
+        tag = getattr(child, "name", None)
+        if tag == "i":
+            classes = " ".join(child.get("class") or [])
+            if "fa-phone" in classes or "fa-map-marker" in classes:
+                break
+            continue
+        if tag == "a":
+            href = (child.get("href") or "").lower()
+            label = child.get_text(" ", strip=True).lower()
+            if href.startswith("tel:") or "maps." in href or "harita" in label:
+                break
+            continue
+        if tag == "br":
+            chunks.append(" ")
+            continue
+        if tag is None:
+            chunks.append(str(child))
+        else:
+            chunks.append(child.get_text(" ", strip=True))
+    raw = re.sub(r"\s+", " ", "".join(chunks))
+    raw = re.sub(r"Haritada görüntülemek.*$", "", raw, flags=re.I)
+    raw = re.sub(r"\d{10,}", "", raw)
+    return raw.strip(" ,.-")
+
+
 def _parse_bitlisecza_page(
     soup: BeautifulSoup,
     now: datetime,
@@ -1333,7 +1362,12 @@ def _parse_bitlisecza_page(
         period = f"{now.day} {MONTHS_TR[now.month]} {now.year}"
 
     label_by_key = dict(DISTRICT_ORDER)
-    for h4 in soup.select("h4.tred, h4"):
+    blocks = soup.select("div.nobetci")
+    headings = [b.select_one("h4") for b in blocks]
+    headings = [h for h in headings if h is not None]
+    if not headings:
+        headings = soup.select("h4.tred, h4")
+    for h4 in headings:
         strong = h4.select_one("strong") or h4
         small = strong.select_one("small")
         if not small:
@@ -1348,11 +1382,17 @@ def _parse_bitlisecza_page(
         )
         if not key or key not in _EXPECTED_DISTRICT_KEYS:
             continue
-        name_text = re.sub(r"\s+", " ", strong.get_text(" ", strip=True))
-        name = _pharmacy_name_from_title(name_text, district_raw)
+        name_bits: List[str] = []
+        for child in strong.children:
+            if getattr(child, "name", None) in ("small", "br"):
+                continue
+            piece = child if isinstance(child, str) else child.get_text(" ", strip=True)
+            piece = re.sub(r"\s+", " ", str(piece)).strip()
+            if piece:
+                name_bits.append(piece)
+        name = _pharmacy_name_from_title(" ".join(name_bits), district_raw)
         if not name:
             continue
-        # Sondaki ECZANESİ → Eczanesi; capitalize() Türkçe İ bozar, kullanma
         name = re.sub(r"(?i)\s*eczanes[iı]\s*$", " Eczanesi", name).strip()
 
         phone = ""
@@ -1371,21 +1411,14 @@ def _parse_bitlisecza_page(
                     p = sib
                     break
         if p:
-            raw = re.sub(r"\s+", " ", p.get_text(" ", strip=True))
-            raw = re.sub(r"Haritada görüntülemek.*$", "", raw, flags=re.I).strip()
+            address = _bitlisecza_address(p)
             if not phone:
-                digits = re.sub(r"\D+", "", raw)
-                if len(digits) == 10:
-                    digits = "0" + digits
+                digits = re.sub(r"\D+", "", p.get_text(" ", strip=True))
+                if len(digits) >= 10 and not digits.startswith("0"):
+                    digits = "0" + digits[-10:]
                 mphone = _BITLISECZA_PHONE_RE.search(digits)
                 if mphone:
                     phone = _format_tr_phone(mphone.group(1))
-                    raw = re.sub(
-                        r"0?\s*\d[\d\s\-()]{8,}\d\s*$",
-                        "",
-                        raw,
-                    ).strip(" -")
-            address = raw.strip(" -")
 
         rows.append({
             "name": name,
