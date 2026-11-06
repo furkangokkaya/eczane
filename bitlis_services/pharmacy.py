@@ -402,12 +402,72 @@ def _load_today_cache(now: datetime) -> Optional[Dict[str, Any]]:
 
 
 def _save_today_cache(data: Dict[str, Any]) -> None:
-    if not data.get("ok"):
+    if not data.get("ok") or data.get("_same_as_yesterday"):
         return
     try:
         CACHE_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception as e:
         logger.debug("Eczane cache yazılamadı: %s", e)
+
+
+def _pharmacy_identity(data: Dict[str, Any]) -> Tuple[Tuple[str, str, str], ...]:
+    """İlçe + eczane adı + telefon. Aynı liste ertesi gün başlık değişse de yakalanır."""
+    rows: List[Tuple[str, str, str]] = []
+    for district in data.get("districts") or []:
+        key = str(district.get("key") or "")
+        for item in district.get("pharmacies") or []:
+            name = re.sub(r"\s+", " ", str(item.get("name") or "")).casefold()
+            phone = re.sub(r"\D", "", str(item.get("phone") or ""))
+            if name:
+                rows.append((key, name, phone))
+    return tuple(sorted(rows))
+
+
+def _pharmacy_names(data: Dict[str, Any]) -> List[str]:
+    names: List[str] = []
+    for district in data.get("districts") or []:
+        for item in district.get("pharmacies") or []:
+            name = str(item.get("name") or "").strip()
+            if name:
+                names.append(name)
+    return names
+
+
+def _yesterday_cache(now: datetime) -> Optional[Dict[str, Any]]:
+    try:
+        if not CACHE_PATH.exists():
+            return None
+        data = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    yesterday = (now.date() - timedelta(days=1)).isoformat()
+    if str(data.get("date") or "") != yesterday or not data.get("ok"):
+        return None
+    if not _pharmacy_identity(data):
+        return None
+    return data
+
+
+def _reject_yesterday_copy(result: Dict[str, Any], now: datetime) -> Dict[str, Any]:
+    """Başlık bugünü gösterse bile eczaneler dünküyle aynıysa paylaşma."""
+    if not result.get("ok"):
+        return result
+    previous = _yesterday_cache(now)
+    if previous is None:
+        return result
+    if _pharmacy_identity(result) != _pharmacy_identity(previous):
+        return result
+    names = ", ".join(_pharmacy_names(result))
+    rejected = dict(result)
+    rejected["ok"] = False
+    rejected["_stale"] = True
+    rejected["_same_as_yesterday"] = True
+    rejected["error"] = (
+        "Eczane listesi dünkü ile aynı; site henüz bugüne geçmemiş "
+        f"({names}). Paylaşım bekletildi."
+    )
+    logger.warning("%s", rejected["error"])
+    return rejected
 
 
 def _fetch_remote_pharmacies(
@@ -1467,12 +1527,14 @@ def _fetch_from_bitlisecza(now: datetime, *, for_daily_publish: bool = True) -> 
         )
         logger.error("%s", result["error"])
     else:
+        names = ", ".join(_pharmacy_names(result))
         logger.info(
-            "Nöbetçi eczane resmi kaynaktan alındı (%d eczane, %s)",
+            "Nöbetçi eczane resmi kaynaktan alındı (%d eczane, %s): %s",
             int(result.get("total") or 0),
-            BITLISECZA_URL,
+            result.get("date_label") or "",
+            names,
         )
-    return result
+    return _reject_yesterday_copy(result, now)
 
 
 def _fetch_from_eczaneleri(now: datetime, *, for_daily_publish: bool = True) -> Dict[str, Any]:
@@ -1688,7 +1750,10 @@ def _scrape_live_pharmacies(now: datetime, *, for_daily_publish: bool = True) ->
     today = now.strftime("%Y-%m-%d")
 
     # 1) Resmi TEB Bitlis — doğru liste
-    official = _fetch_from_bitlisecza(now, for_daily_publish=for_daily_publish)
+    official = _reject_yesterday_copy(
+        _fetch_from_bitlisecza(now, for_daily_publish=for_daily_publish),
+        now,
+    )
     if (
         official.get("ok")
         and is_pharmacy_cache_complete(official)
@@ -1704,7 +1769,10 @@ def _scrape_live_pharmacies(now: datetime, *, for_daily_publish: bool = True) ->
     districts = _fetch_from_district_pages(now, for_daily_publish=for_daily_publish)
 
     # Resmi kaynak önce — diğerleri yalnız boş ilçe doldurur
-    merged = _merge_pharmacy_sources(now, official, ecz, hur, fallback, districts)
+    merged = _reject_yesterday_copy(
+        _merge_pharmacy_sources(now, official, ecz, hur, fallback, districts),
+        now,
+    )
     if (
         merged.get("ok")
         and is_pharmacy_cache_complete(merged)
@@ -1721,6 +1789,7 @@ def _scrape_live_pharmacies(now: datetime, *, for_daily_publish: bool = True) ->
         return merged
 
     for candidate in (official, ecz, districts, fallback, hur):
+        candidate = _reject_yesterday_copy(candidate, now)
         if (
             candidate.get("ok")
             and is_pharmacy_cache_complete(candidate)
@@ -1731,6 +1800,7 @@ def _scrape_live_pharmacies(now: datetime, *, for_daily_publish: bool = True) ->
             return candidate
 
     for candidate in (official, ecz, districts, fallback, hur):
+        candidate = _reject_yesterday_copy(candidate, now)
         if (
             candidate.get("ok")
             and is_pharmacy_cache_complete(candidate)
@@ -1843,8 +1913,12 @@ def fetch_duty_pharmacies(
             return result
 
         remote = _fetch_remote_pharmacies(url, remote_token, now)
-        if not remote.get("ok"):
+        if remote.get("ok"):
+            remote = _reject_yesterday_copy(remote, now)
+        if not remote.get("ok") and not remote.get("_same_as_yesterday"):
             logger.error("GitHub eczane cache alınamadı: %s", remote.get("error"))
+            return remote
+        if remote.get("_same_as_yesterday"):
             return remote
 
         if remote.get("_stale"):
