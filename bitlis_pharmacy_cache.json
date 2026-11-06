@@ -1,8 +1,8 @@
 {
   "ok": true,
-  "date": "2026-11-05",
-  "date_label": "05.11.2026",
-  "period": "05 Kasım 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
+  "date": "2026-11-06",
+  "date_label": "06.11.2026",
+  "period": "06 Kasım 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
   "districts": [
     {
       "key": "merkez",
@@ -102,7 +102,7 @@
     }
   ],
   "total": 8,
-  "fetched_at": "2026-11-05T12:37:15",
+  "fetched_at": "2026-11-06T03:29:27+03:00",
   "source": "bitlisecza.org.tr",
   "source_mode": "bitlisecza_official",
   "source_url": "https://www.bitlisecza.org.tr/nobetci-eczaneler"
