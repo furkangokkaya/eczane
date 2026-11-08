@@ -1,17 +1,17 @@
 {
   "ok": true,
-  "date": "2026-11-08",
-  "date_label": "08.11.2026",
-  "period": "08 Kasım 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
+  "date": "2026-11-09",
+  "date_label": "09.11.2026",
+  "period": "09 Kasım 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
   "districts": [
     {
       "key": "merkez",
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "MEYDAN Eczanesi",
-          "address": "TAŞ MAH.CUMHURİYET CAD.NO:10/C (MAHALLEBAŞI)",
-          "phone": "0(434)226-88-78"
+          "name": "KARASU Eczanesi",
+          "address": "HÜSREVPAŞA MAH.AHMET EREN BULVARI NO:26/B çam sitesi koçmar market karşısı",
+          "phone": "0(434)228-88-44"
         }
       ],
       "count": 1,
@@ -22,9 +22,9 @@
       "name": "Mutki",
       "pharmacies": [
         {
-          "name": "BARIŞ Eczanesi",
-          "address": "YENİ MAH.KİLER CAD.1 NO:2/A",
-          "phone": "0(434)711-26-25"
+          "name": "CAN Eczanesi",
+          "address": "Pınarbaşı Mah. Halk sokak No: 2/1 Mutki/ Bitlis",
+          "phone": "0(434)711-20-20"
         }
       ],
       "count": 1,
@@ -35,9 +35,9 @@
       "name": "Ahlat",
       "pharmacies": [
         {
-          "name": "ATALAY Eczanesi",
-          "address": "Selçuklu Mah. Şehit Mesut ARDINÇ Caddesi ne:14/B",
-          "phone": "0(501)703-53-13"
+          "name": "AHLAT ŞİFA Eczanesi",
+          "address": "SELÇUKLU MAH.PROF.DR.HALUK DURSUN SK.NO:4 İÇ KAPI NO:31(AHLAT DEVLET HASTANESİ KARŞISI)",
+          "phone": "0(552)473-93-13"
         }
       ],
       "count": 1,
@@ -48,9 +48,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "KAĞAN Eczanesi",
-          "address": "ÇAYIR MAH.RECEP TAYYİP ERDOĞAN BULVARI NO:23/C",
-          "phone": "0(434)311-23-39"
+          "name": "YENİ ADİLCEVAZ Eczanesi",
+          "address": "CEVİZLİ MAH. 801.SOKAK NO:4",
+          "phone": "0(434)311-20-12"
         }
       ],
       "count": 1,
@@ -61,9 +61,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "DEVA Eczanesi",
-          "address": "GÜROYMAK İLÇESİ BİTLİS BULVARI KÜMBET MAH. NO:7",
-          "phone": "0(434)511-38-00"
+          "name": "SİFA Eczanesi",
+          "address": "MUS CAD. NO:6 GÜROYMAK",
+          "phone": "0(434)511-37-40"
         }
       ],
       "count": 1,
@@ -74,9 +74,9 @@
       "name": "Hizan",
       "pharmacies": [
         {
-          "name": "HİZAN DEVA Eczanesi",
-          "address": "KÜLTÜR MAH.HASTANE CAD.NO:10/B",
-          "phone": "0(434)611-18-80"
+          "name": "SAĞLIK Eczanesi",
+          "address": "KÜLTÜR MAH.FARUKBEKARLAR CAD.NO:3/E",
+          "phone": "0(536)392-34-13"
         }
       ],
       "count": 1,
@@ -87,14 +87,14 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "ULUSOY Eczanesi",
-          "address": "SAHİL MAH.CUMHURİYET CAD.NO:281/C KUVEYT TÜRK BANKASI KARŞISI",
-          "phone": "0(434)827-57-47"
+          "name": "GÖL Eczanesi",
+          "address": "KARŞIYAKA MAH. HASTANE CAD. SAĞLIK İŞ MERKEZİ NO:20/J(RAHVA MEVKİ)",
+          "phone": "0(434)827-00-99"
         },
         {
-          "name": "ZEHRA Eczanesi",
-          "address": "KARŞIYAKA MAH. HASTANE CADDESİ SAĞLIKİŞ MERKEZİ NO:20/L(RAHVAMEVKİ)",
-          "phone": "0(434)829-12-52"
+          "name": "DÜNYA Eczanesi",
+          "address": "TUĞ MAH. CUMHURİYET BULVARI NO:242/C(BARAN KUYUMCULUK KARŞISI) BARAN KUYUMCULUK KARŞISI",
+          "phone": "0(434)827-33-13"
         }
       ],
       "count": 2,
@@ -102,7 +102,7 @@
     }
   ],
   "total": 8,
-  "fetched_at": "2026-11-08T00:35:08+03:00",
+  "fetched_at": "2026-11-09T00:49:23+03:00",
   "source": "bitlisecza.org.tr",
   "source_mode": "bitlisecza_official",
   "source_url": "https://www.bitlisecza.org.tr/nobetci-eczaneler"
