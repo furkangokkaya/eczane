@@ -1,17 +1,17 @@
 {
   "ok": true,
-  "date": "2026-11-16",
-  "date_label": "16.11.2026",
-  "period": "16 Kasım 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
+  "date": "2026-11-17",
+  "date_label": "17.11.2026",
+  "period": "17 Kasım 2026 Bitlis'de Bugün Nöbetçi Eczaneler",
   "districts": [
     {
       "key": "merkez",
       "name": "Merkez",
       "pharmacies": [
         {
-          "name": "EREN Eczanesi",
-          "address": "BEŞMİNARE MAH.AHMET EREN BULVARI BİTLİS DEVLET HASTANESİ KARŞISI NO:150/D",
-          "phone": "0(434)246-86-36"
+          "name": "MERKEZ Eczanesi",
+          "address": "ARİFBEY CAD.NO:4/A (YENİ PTT YANI)",
+          "phone": "0(434)226-92-22"
         }
       ],
       "count": 1,
@@ -22,9 +22,9 @@
       "name": "Mutki",
       "pharmacies": [
         {
-          "name": "DEVA Eczanesi",
-          "address": "Yeni Mahalle Kiler Caddesi no:12/E",
-          "phone": "0(553)454-12-21"
+          "name": "BARIŞ Eczanesi",
+          "address": "YENİ MAH.KİLER CAD.1 NO:2/A",
+          "phone": "0(434)711-26-25"
         }
       ],
       "count": 1,
@@ -35,9 +35,9 @@
       "name": "Ahlat",
       "pharmacies": [
         {
-          "name": "HALK Eczanesi",
-          "address": "SELÇUKLU MAH. SELÇUKLU CAD. NO:94",
-          "phone": "0(434)412-49-30"
+          "name": "YAŞAM Eczanesi",
+          "address": "SELÇUKLU MAH.MESUT ARDIÇ CAD.NO:4",
+          "phone": "0(551)973-04-73"
         }
       ],
       "count": 1,
@@ -48,9 +48,9 @@
       "name": "Adilcevaz",
       "pharmacies": [
         {
-          "name": "KAĞAN Eczanesi",
-          "address": "ÇAYIR MAH.RECEP TAYYİP ERDOĞAN BULVARI NO:23/C",
-          "phone": "0(434)311-23-39"
+          "name": "YENİ ADİLCEVAZ Eczanesi",
+          "address": "CEVİZLİ MAH. 801.SOKAK NO:4",
+          "phone": "0(434)311-20-12"
         }
       ],
       "count": 1,
@@ -61,9 +61,9 @@
       "name": "Güroymak",
       "pharmacies": [
         {
-          "name": "SEZGİN Eczanesi",
-          "address": "BAĞLAR MAH.MUŞ BULVARI NO:68/A",
-          "phone": "0(434)511-25-25"
+          "name": "HALK Eczanesi",
+          "address": "SIRINTEPE MAH. DEV. HAST. KARSISI NO:1GÜROYMAK",
+          "phone": "0(434)511-30-40"
         }
       ],
       "count": 1,
@@ -74,9 +74,9 @@
       "name": "Hizan",
       "pharmacies": [
         {
-          "name": "HİZAN DERMAN Eczanesi",
-          "address": "YEŞİLOVA MAH.HÜKÜMET CAD.NO:65/D",
-          "phone": "0(434)611-25-26"
+          "name": "ŞİFA Eczanesi",
+          "address": "KÜLTÜR MAH.HÜKÜMET CAD.NO:40/B",
+          "phone": "0(501)086-04-47"
         }
       ],
       "count": 1,
@@ -87,14 +87,14 @@
       "name": "Tatvan",
       "pharmacies": [
         {
-          "name": "SU Eczanesi",
-          "address": "KARŞIYAKA MAH.HASTANE CADDESİ SAĞLIK İŞ MERKEZİ NO:20/F(TATVAN BİTLİS DEVLET HAST.KARŞ.)",
-          "phone": "0(434)829-13-85"
+          "name": "ELA Eczanesi",
+          "address": "KÜLTÜR MAHLESİ CEMAL TAŞAR CAD.NO:63/",
+          "phone": "0(434)827-06-20"
         },
         {
-          "name": "YENI GÜVEN Eczanesi",
-          "address": "CUM.CAD NO:245",
-          "phone": "0(434)827-07-80"
+          "name": "ALTINDAL Eczanesi",
+          "address": "KARŞIYAKA MAH. HASTANE CAD. SAĞLIK İŞ MERKEZİ NO:20/B(RAHVA MEVKİ)",
+          "phone": "0(434)829-13-81"
         }
       ],
       "count": 2,
@@ -102,7 +102,7 @@
     }
   ],
   "total": 8,
-  "fetched_at": "2026-11-16T01:35:55+03:00",
+  "fetched_at": "2026-11-17T04:42:55+03:00",
   "source": "bitlisecza.org.tr",
   "source_mode": "bitlisecza_official",
   "source_url": "https://www.bitlisecza.org.tr/nobetci-eczaneler"
